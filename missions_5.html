@@ -1,0 +1,2435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>missions.io</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   missions.io  —  PASS 1: foundation + quick capture
+   Single-file. No deps beyond Google Fonts (works offline-degraded).
+   Design system uses CSS vars so later passes (themes/fonts/shape/size)
+   plug in cleanly via Settings.
+   ============================================================ */
+
+:root{
+  /* --- default theme: creme / black + blue + light purple, brutalist --- */
+  --bg:        #F2EEE2;   /* creme paper */
+  --bg-2:      #E9E4D4;   /* slightly deeper creme for wells */
+  --ink:       #141210;   /* near-black */
+  --ink-soft:  #4a463d;
+  --accent:    #234BFF;   /* electric blue */
+  --accent-2:  #C4B2FF;   /* light purple / lavender */
+  --accent-2d: #8C73E8;   /* deeper lavender for text-on-creme */
+  --danger:    #E5484D;
+
+  /* structural tokens (Settings will override these later) */
+  --radius:    0px;       /* rectangle by default; rounded mode -> ~14px */
+  --border-w:  3px;
+  --shadow:    6px 6px 0 var(--ink);
+  --shadow-sm: 4px 4px 0 var(--ink);
+
+  /* typography (Settings font picker will override these later) */
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-mono:    "Space Mono", ui-monospace, "Courier New", monospace;
+  --scale: 1;             /* font-size multiplier: s .9 / m 1 / l 1.12 */
+}
+
+*{ box-sizing:border-box; }
+html{ font-size: calc(16px * var(--scale)); }
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-display);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.4;
+  /* subtle brutalist grid texture */
+  background-image:
+    linear-gradient(rgba(20,18,16,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20,18,16,.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+button{ font-family:inherit; cursor:pointer; }
+input, select, textarea{ font-family:inherit; }
+
+/* ---------- App shell ---------- */
+.app{ min-height:100vh; display:flex; flex-direction:column; }
+
+header.topbar{
+  display:flex; align-items:center; gap:1rem;
+  padding:.85rem 1.25rem;
+  border-bottom:var(--border-w) solid var(--ink);
+  background:var(--bg);
+  position:sticky; top:0; z-index:40;
+}
+.brand{
+  font-family:var(--font-mono); font-weight:700;
+  font-size:1.05rem; letter-spacing:-.5px;
+  border:var(--border-w) solid var(--ink);
+  background:var(--ink); color:var(--bg);
+  padding:.35rem .6rem; border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);
+  user-select:none;
+}
+.brand b{ color:var(--accent-2); }
+
+nav.tabs{ display:flex; gap:.5rem; margin-left:auto; flex-wrap:wrap; }
+.tab{
+  font-weight:600; font-size:.9rem;
+  background:var(--bg); color:var(--ink);
+  border:var(--border-w) solid var(--ink);
+  padding:.45rem .8rem; border-radius:var(--radius);
+  transition:transform .08s ease, box-shadow .08s ease, background .12s ease;
+}
+.tab:hover{ transform:translate(-2px,-2px); box-shadow:var(--shadow-sm); }
+.tab[aria-selected="true"]{
+  background:var(--ink); color:var(--bg);
+  box-shadow:var(--shadow-sm);
+}
+.tab .dot{ color:var(--accent-2); }
+
+main{ flex:1; padding:1.5rem 1.25rem 4rem; }
+.view{ display:none; animation:fade .18s ease; max-width:1100px; margin:0 auto; }
+.view.active{ display:block; }
+@keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+
+.eyebrow{
+  font-family:var(--font-mono); font-size:.72rem; font-weight:700;
+  letter-spacing:2px; text-transform:uppercase; color:var(--ink-soft);
+}
+h1.view-title{ font-size:2rem; margin:.2rem 0 1.2rem; letter-spacing:-1px; }
+
+/* ---------- HOME / CAPTURE ---------- */
+.home-wrap{
+  min-height:62vh; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:1.4rem; text-align:center;
+}
+.home-hello .eyebrow{ display:block; margin-bottom:.4rem; }
+.home-hello h2{
+  font-size:clamp(1.6rem, 4vw, 2.6rem); margin:0; letter-spacing:-1.5px; line-height:1.05;
+}
+.home-hello h2 .hl{ color:var(--accent); }
+
+.capture{
+  width:min(640px, 100%);
+  border:var(--border-w) solid var(--ink);
+  background:var(--bg);
+  box-shadow:var(--shadow);
+  border-radius:var(--radius);
+  text-align:left;
+  overflow:hidden;
+}
+.capture-head{
+  display:flex; align-items:center; gap:.6rem;
+  padding:.7rem .9rem; border-bottom:var(--border-w) solid var(--ink);
+  background:var(--accent-2);
+}
+.capture-head .label{ font-family:var(--font-mono); font-weight:700; font-size:.78rem; letter-spacing:1px; }
+.capture-head .count{
+  margin-left:auto; font-family:var(--font-mono); font-size:.72rem; font-weight:700;
+  background:var(--ink); color:var(--bg); padding:.15rem .5rem; border-radius:var(--radius);
+}
+.capture-body{ padding:.9rem; }
+
+.cap-input{
+  width:100%; border:var(--border-w) solid var(--ink); background:var(--bg);
+  padding:.85rem .9rem; font-size:1.1rem; font-weight:600; color:var(--ink);
+  border-radius:var(--radius); outline:none;
+}
+.cap-input::placeholder{ color:var(--ink-soft); font-weight:500; }
+.cap-input:focus{ box-shadow:var(--shadow-sm); }
+.cap-hint{ font-family:var(--font-mono); font-size:.72rem; color:var(--ink-soft); margin:.5rem 2px 0; }
+.cap-hint kbd{
+  font-family:var(--font-mono); background:var(--ink); color:var(--bg);
+  padding:.05rem .35rem; border-radius:3px; font-size:.68rem;
+}
+
+/* staged missions list */
+.stage{ margin-top:.9rem; display:flex; flex-direction:column; gap:.5rem; }
+.stage:empty{ display:none; }
+.stage-row{
+  display:flex; align-items:center; gap:.6rem;
+  border:var(--border-w) solid var(--ink); background:var(--bg-2);
+  padding:.55rem .7rem; border-radius:var(--radius);
+}
+.stage-row .num{
+  font-family:var(--font-mono); font-weight:700; font-size:.72rem;
+  background:var(--ink); color:var(--bg); padding:.1rem .4rem; border-radius:3px;
+}
+.stage-row .txt{ flex:1; font-weight:600; }
+.stage-row .due-chip{
+  font-family:var(--font-mono); font-size:.66rem; font-weight:700;
+  background:var(--accent-2); border:2px solid var(--ink); padding:.1rem .4rem; border-radius:var(--radius);
+  white-space:nowrap;
+}
+.stage-row .rm{
+  border:2px solid var(--ink); background:var(--bg); width:1.6rem; height:1.6rem;
+  border-radius:var(--radius); font-weight:700; line-height:1; display:grid; place-items:center;
+}
+.stage-row .rm:hover{ background:var(--danger); color:#fff; }
+
+/* due-time selector */
+.due-wrap{ margin-top:1rem; }
+.due-wrap .due-label{ font-family:var(--font-mono); font-size:.7rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--ink-soft); margin-bottom:.45rem; }
+.due-group{ display:flex; flex-wrap:wrap; gap:.45rem; }
+.due-opt{
+  border:var(--border-w) solid var(--ink); background:var(--bg);
+  padding:.4rem .65rem; border-radius:var(--radius); font-weight:600; font-size:.82rem;
+  transition:transform .07s ease, box-shadow .07s ease;
+}
+.due-opt:hover{ transform:translate(-2px,-2px); box-shadow:var(--shadow-sm); }
+.due-opt[aria-checked="true"]{ background:var(--accent); color:#fff; box-shadow:var(--shadow-sm); }
+.due-group:focus-within{ outline:none; }
+.due-opt:focus-visible{ outline:3px solid var(--accent-2d); outline-offset:2px; }
+
+.custom-due{ display:none; margin-top:.7rem; gap:.6rem; flex-wrap:wrap; align-items:flex-end; }
+.custom-due.show{ display:flex; }
+.field{ display:flex; flex-direction:column; gap:.25rem; }
+.field label{ font-family:var(--font-mono); font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--ink-soft); }
+.field input{
+  border:var(--border-w) solid var(--ink); background:var(--bg); padding:.45rem .55rem;
+  border-radius:var(--radius); font-weight:600; width:7rem;
+}
+.field input.num{ width:5rem; }
+.custom-due .sep{ font-family:var(--font-mono); font-weight:700; padding-bottom:.55rem; color:var(--ink-soft); }
+
+/* destination actions */
+.dest{ display:none; margin-top:1.1rem; gap:.6rem; flex-wrap:wrap; }
+.dest.show{ display:flex; }
+.btn{
+  border:var(--border-w) solid var(--ink); padding:.6rem .9rem; border-radius:var(--radius);
+  font-weight:700; font-size:.9rem; transition:transform .08s ease, box-shadow .08s ease;
+}
+.btn:hover{ transform:translate(-2px,-2px); box-shadow:var(--shadow-sm); }
+.btn.primary{ background:var(--accent); color:#fff; }
+.btn.secondary{ background:var(--accent-2); color:var(--ink); }
+.btn.ghost{ background:var(--bg); color:var(--ink); }
+.dest .picker{ display:none; width:100%; margin-top:.4rem; }
+.dest .picker.show{ display:block; }
+.dest select{
+  width:100%; border:var(--border-w) solid var(--ink); background:var(--bg);
+  padding:.55rem .6rem; border-radius:var(--radius); font-weight:600;
+}
+.dest .empty-note{ font-family:var(--font-mono); font-size:.74rem; color:var(--ink-soft); margin-top:.5rem; }
+
+/* reveal pills */
+.reveal{ display:flex; gap:.7rem; justify-content:center; flex-wrap:wrap; }
+.pill{
+  border:var(--border-w) solid var(--ink); background:var(--bg);
+  padding:.55rem 1.1rem; border-radius:999px; font-weight:700; font-size:.88rem;
+  box-shadow:var(--shadow-sm); transition:transform .08s ease;
+}
+.pill:hover{ transform:translate(-2px,-2px); }
+.pill .arr{ color:var(--accent); }
+.pill.alt .arr{ color:var(--accent-2d); }
+
+/* ---------- generic cards / lists for Quests + Missions stubs ---------- */
+.grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:1rem; }
+.card{
+  border:var(--border-w) solid var(--ink); background:var(--bg); border-radius:var(--radius);
+  box-shadow:var(--shadow-sm); overflow:hidden; transition:transform .08s ease, box-shadow .08s ease;
+}
+.card:hover{ transform:translate(-2px,-2px); box-shadow:var(--shadow); }
+.card .stripe{ height:8px; background:var(--accent); }
+.card .card-body{ padding:.8rem .85rem; }
+.card .qname{ font-size:1.05rem; font-weight:700; margin:0 0 .15rem; }
+.card .qcat{ font-family:var(--font-mono); font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--ink-soft); }
+.card .qmeta{ display:flex; align-items:center; gap:.5rem; margin-top:.7rem; }
+.bar{ flex:1; height:10px; border:2px solid var(--ink); border-radius:var(--radius); overflow:hidden; background:var(--bg-2); }
+.bar > i{ display:block; height:100%; background:var(--accent); }
+.card .pct{ font-family:var(--font-mono); font-size:.72rem; font-weight:700; }
+
+.mlist{ display:flex; flex-direction:column; gap:.5rem; }
+.mrow{
+  display:flex; align-items:center; gap:.7rem;
+  border:var(--border-w) solid var(--ink); background:var(--bg); border-radius:var(--radius);
+  padding:.6rem .8rem; box-shadow:var(--shadow-sm);
+}
+.mrow .chk{ width:1.3rem; height:1.3rem; border:var(--border-w) solid var(--ink); border-radius:var(--radius); display:grid; place-items:center; flex:none; background:var(--bg); }
+.mrow .chk.on{ background:var(--accent); color:#fff; }
+.mrow .qdot{ width:.85rem; height:.85rem; border:2px solid var(--ink); border-radius:50%; flex:none; }
+.mrow .mtitle{ flex:1; font-weight:600; }
+.mrow.done .mtitle{ text-decoration:line-through; color:var(--ink-soft); }
+.mrow .mdue{ font-family:var(--font-mono); font-size:.68rem; font-weight:700; color:var(--ink-soft); white-space:nowrap; }
+
+.empty{
+  border:var(--border-w) dashed var(--ink); border-radius:var(--radius);
+  padding:2rem 1.2rem; text-align:center; color:var(--ink-soft);
+  font-family:var(--font-mono); font-size:.85rem; background:var(--bg-2);
+}
+
+/* settings stub */
+.row-toggle{ display:flex; align-items:center; gap:.8rem; border:var(--border-w) solid var(--ink); background:var(--bg); padding:.8rem 1rem; border-radius:var(--radius); box-shadow:var(--shadow-sm); max-width:480px; }
+.row-toggle .meta{ flex:1; }
+.row-toggle .meta b{ display:block; }
+.row-toggle .meta span{ font-family:var(--font-mono); font-size:.72rem; color:var(--ink-soft); }
+.switch{ width:54px; height:30px; border:var(--border-w) solid var(--ink); border-radius:999px; background:var(--bg-2); position:relative; flex:none; }
+.switch::after{ content:""; position:absolute; top:2px; left:2px; width:20px; height:20px; background:var(--ink); border-radius:50%; transition:left .12s ease; }
+.switch[aria-checked="true"]{ background:var(--accent-2); }
+.switch[aria-checked="true"]::after{ left:26px; background:var(--ink); }
+.soon{ margin-top:1rem; }
+
+/* ====================== PASS 2: Quests creation + cards ====================== */
+.view-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; margin-bottom:1.2rem; flex-wrap:wrap; }
+.view-head .eyebrow{ display:block; }
+.view-head h1.view-title{ margin:.2rem 0 0; }
+
+/* card cover */
+.card .cover{ height:120px; border-bottom:var(--border-w) solid var(--ink); background-size:cover; background-position:center; position:relative; display:flex; align-items:flex-end; }
+.card .cover .cat-tag{ font-family:var(--font-mono); font-size:.6rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; background:var(--ink); color:var(--bg); padding:.15rem .4rem; margin:.4rem; }
+.card .cover.solid{ align-items:center; justify-content:center; }
+.card .cover.solid .glyph{ font-size:2.2rem; }
+.card .cover.solid .cat-tag{ position:absolute; left:0; bottom:0; }
+
+#questsMore{ text-align:center; margin-top:1.2rem; }
+
+/* modal / wizard */
+.modal-overlay{ position:fixed; inset:0; background:rgba(20,18,16,.55); display:none; align-items:center; justify-content:center; z-index:60; padding:1rem; }
+.modal-overlay.show{ display:flex; }
+.modal{ width:min(540px,100%); background:var(--bg); border:var(--border-w) solid var(--ink); box-shadow:var(--shadow); border-radius:var(--radius); max-height:92vh; display:flex; flex-direction:column; animation:pop .16s ease; }
+@keyframes pop{ from{transform:translateY(14px); opacity:0;} to{transform:none; opacity:1;} }
+.wiz-head{ display:flex; align-items:center; gap:.6rem; padding:.7rem .9rem; border-bottom:var(--border-w) solid var(--ink); background:var(--accent-2); }
+.wiz-step{ font-family:var(--font-mono); font-weight:700; font-size:.74rem; letter-spacing:1px; }
+.wiz-close{ margin-left:auto; border:2px solid var(--ink); background:var(--bg); width:1.8rem; height:1.8rem; font-weight:700; border-radius:var(--radius); line-height:1; }
+.wiz-close:hover{ background:var(--danger); color:#fff; }
+.wiz-progress{ display:flex; gap:.35rem; padding:.7rem .9rem 0; }
+.wiz-progress .pdot{ flex:1; height:6px; border:2px solid var(--ink); background:var(--bg); border-radius:var(--radius); }
+.wiz-progress .pdot.on{ background:var(--accent); }
+.wiz-body{ padding:1rem .9rem; overflow:auto; }
+.wiz-panel{ display:none; }
+.wiz-panel.active{ display:block; animation:fade .16s ease; }
+.step-q{ font-size:1.25rem; font-weight:700; margin:0 0 .8rem; letter-spacing:-.5px; }
+.step-q small{ display:block; font-family:var(--font-mono); font-size:.68rem; font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:1px; margin-bottom:.25rem; }
+.wiz-input{ width:100%; border:var(--border-w) solid var(--ink); background:var(--bg); padding:.7rem .8rem; font-size:1.05rem; font-weight:600; border-radius:var(--radius); outline:none; }
+.wiz-input:focus{ box-shadow:var(--shadow-sm); }
+textarea.wiz-input{ resize:vertical; min-height:90px; font-family:inherit; line-height:1.4; }
+.swatches{ display:grid; grid-template-columns:repeat(5,1fr); gap:.6rem; }
+.swatch{ aspect-ratio:1; border:var(--border-w) solid var(--ink); border-radius:var(--radius); position:relative; }
+.swatch[aria-checked="true"]{ box-shadow:var(--shadow-sm); transform:translate(-2px,-2px); }
+.swatch[aria-checked="true"]::after{ content:"✓"; position:absolute; inset:0; display:grid; place-items:center; color:#fff; font-weight:700; font-size:1.3rem; text-shadow:0 1px 3px rgba(0,0,0,.7); }
+.swatch:focus-visible{ outline:3px solid var(--accent-2d); outline-offset:2px; }
+.cats{ display:flex; flex-wrap:wrap; gap:.5rem; }
+.cat-opt{ border:var(--border-w) solid var(--ink); background:var(--bg); padding:.5rem .8rem; border-radius:var(--radius); font-weight:700; }
+.cat-opt[aria-checked="true"]{ background:var(--accent); color:#fff; box-shadow:var(--shadow-sm); }
+.cat-opt:focus-visible{ outline:3px solid var(--accent-2d); outline-offset:2px; }
+.imgdrop{ border:var(--border-w) dashed var(--ink); border-radius:var(--radius); padding:1.3rem; text-align:center; background:var(--bg-2); cursor:pointer; font-family:var(--font-mono); font-size:.8rem; font-weight:700; color:var(--ink-soft); }
+.imgdrop:hover{ background:var(--bg); }
+.imgprev{ margin-top:.7rem; border:var(--border-w) solid var(--ink); border-radius:var(--radius); height:150px; background-size:cover; background-position:center; display:none; }
+.imgprev.show{ display:block; }
+.img-actions{ display:none; gap:.5rem; margin-top:.5rem; }
+.img-actions.show{ display:flex; }
+.review-box{ border:var(--border-w) solid var(--ink); border-radius:var(--radius); overflow:hidden; }
+.review-cover{ height:120px; background-size:cover; background-position:center; border-bottom:var(--border-w) solid var(--ink); display:flex; align-items:center; justify-content:center; }
+.review-list{ padding:.7rem .9rem; }
+.review-list .ri{ display:flex; gap:.6rem; padding:.4rem 0; border-bottom:1px dashed var(--ink-soft); }
+.review-list .ri:last-child{ border-bottom:none; }
+.review-list .rk{ font-family:var(--font-mono); font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--ink-soft); width:84px; flex:none; padding-top:.15rem; }
+.review-list .rv{ font-weight:600; }
+.wiz-foot{ display:flex; gap:.6rem; padding:.8rem .9rem; border-top:var(--border-w) solid var(--ink); }
+.wiz-foot .btn{ flex:1; text-align:center; }
+.wiz-err{ color:var(--danger); font-family:var(--font-mono); font-size:.72rem; font-weight:700; margin-top:.5rem; display:none; }
+.wiz-err.show{ display:block; }
+
+/* ====================== PASS 3: quest detail slide-in ====================== */
+.sheet-overlay{ position:fixed; inset:0; background:rgba(20,18,16,0); visibility:hidden; z-index:70; transition:background .26s ease, visibility .26s; }
+.sheet-overlay.show{ background:rgba(20,18,16,.5); visibility:visible; }
+.sheet{ position:absolute; top:0; right:0; height:100%; width:min(460px,100%); background:var(--bg); border-left:var(--border-w) solid var(--ink); display:flex; flex-direction:column; transform:translateX(100%); transition:transform .28s cubic-bezier(.2,.8,.2,1); }
+.sheet-overlay.show .sheet{ transform:none; }
+.sheet-cover{ height:160px; border-bottom:var(--border-w) solid var(--ink); position:relative; flex:none; display:flex; align-items:center; justify-content:center; background-size:cover; background-position:center; }
+.sheet-cover .qd-glyph{ font-size:3rem; }
+.sheet-close{ position:absolute; top:.6rem; right:.6rem; z-index:2; border:var(--border-w) solid var(--ink); background:var(--bg); width:2rem; height:2rem; font-weight:700; border-radius:var(--radius); box-shadow:var(--shadow-sm); line-height:1; }
+.sheet-close:hover{ background:var(--danger); color:#fff; }
+.sheet-content{ flex:1; overflow:auto; padding:1.1rem 1rem; }
+.qd-cat{ font-family:var(--font-mono); font-size:.66rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--ink-soft); }
+.qd-name{ font-size:1.6rem; letter-spacing:-.8px; margin:.15rem 0 .7rem; }
+.qd-progress{ display:flex; align-items:center; gap:.6rem; margin-bottom:.85rem; }
+.qd-progress .bar{ flex:1; height:14px; border:var(--border-w) solid var(--ink); border-radius:var(--radius); background:var(--bg-2); overflow:hidden; }
+.qd-progress .bar > i{ display:block; height:100%; }
+.qd-progress .pct{ font-family:var(--font-mono); font-weight:700; font-size:.85rem; }
+.qd-summary{ background:var(--bg-2); border:var(--border-w) solid var(--ink); border-radius:var(--radius); padding:.7rem .8rem; font-weight:500; margin:0 0 .9rem; white-space:pre-wrap; }
+.qd-meta{ display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.1rem; }
+.qd-meta span{ font-family:var(--font-mono); font-size:.64rem; font-weight:700; border:2px solid var(--ink); padding:.15rem .45rem; border-radius:var(--radius); background:var(--bg); }
+.qd-tasks-head{ margin-bottom:.6rem; }
+.quickadd{ margin-bottom:.7rem; }
+.quickadd input{ width:100%; border:var(--border-w) solid var(--ink); background:var(--bg); padding:.6rem .7rem; font-weight:600; border-radius:var(--radius); outline:none; }
+.quickadd input:focus{ box-shadow:var(--shadow-sm); }
+.quickadd input::placeholder{ color:var(--ink-soft); }
+.sheet-foot{ border-top:var(--border-w) solid var(--ink); padding:.7rem 1rem; flex:none; display:flex; gap:.6rem; }
+.sheet-foot .btn{ flex:1; text-align:center; }
+.sheet-foot .btn.danger{ background:var(--danger); color:#fff; }
+
+/* ====================== MAIN PAGE REDESIGN (side nav + soft capture) ====================== */
+main{ padding:1.5rem 1.5rem 4rem 210px; }
+.view{ max-width:1100px; }
+
+/* ---- side nav ---- */
+.sidenav{ position:fixed; left:0; top:0; height:100vh; width:200px; display:flex; flex-direction:column; padding:2.2rem 1.7rem; z-index:50; color:var(--ink); }
+.sidenav .brand{ all:unset; cursor:pointer; font-family:var(--font-display); font-weight:700; font-size:1.3rem; letter-spacing:-.5px; color:inherit; }
+.sidenav .nav-main{ display:flex; flex-direction:column; gap:.4rem; margin-top:7.5rem; }
+.sidenav .navi{ all:unset; cursor:pointer; font-family:var(--font-display); font-size:1.1rem; color:inherit; opacity:.9; padding:.1rem 0; transition:opacity .12s, transform .12s; }
+.sidenav .navi:hover{ opacity:1; transform:translateX(3px); }
+.sidenav .navi[aria-current="true"]{ font-weight:700; opacity:1; }
+.sidenav .nav-settings{ margin-top:auto; }
+.sidenav .navi:focus-visible, .sidenav .brand:focus-visible{ outline:2px solid currentColor; outline-offset:3px; }
+
+/* ---- gradient home ---- */
+/* ---- home keeps the focused, centered capture; themed like the rest ---- */
+body.home-active main{ padding:0; }
+#view-home{ max-width:none; }
+.cap-stage{ min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.2rem; padding:1.5rem; }
+
+/* ---- capture card ---- */
+.cap-card{ width:min(580px,92vw); background:#fff; border:1px solid rgba(0,0,0,.10); border-radius:18px; box-shadow:0 20px 55px rgba(0,0,0,.20); padding:.35rem; transition:min-height .2s ease; }
+.cap-card .cap-list{ display:none; }
+.cap-card.chat{ min-height:440px; display:flex; flex-direction:column; padding:1rem; gap:.4rem; }
+.cap-card.chat .cap-list{ display:flex; flex-direction:column; gap:.7rem; flex:1; overflow:auto; padding:.3rem; }
+.cap-inputrow{ display:flex; align-items:center; gap:.5rem; padding:.55rem .7rem; }
+.cap-card.chat .cap-inputrow{ border-top:1px solid #ececec; padding-top:.7rem; margin-top:.2rem; }
+.cap-input2{ flex:1; border:none; outline:none; background:transparent; font-size:1.15rem; color:#141414; font-family:inherit; }
+.cap-input2::placeholder{ color:#a0a0a0; }
+.cap-arrow{ border:none; background:transparent; font-size:1.7rem; line-height:1; color:#141414; cursor:pointer; padding:0 .2rem; transition:transform .1s; }
+.cap-arrow:hover{ transform:translateX(2px); }
+
+/* ---- bubbles ---- */
+.cap-bubble{ display:flex; align-items:center; gap:.7rem; }
+.cap-bubble .circle{ width:26px; height:26px; border:2px solid #cfcfcf; border-radius:50%; flex:none; cursor:pointer; display:grid; place-items:center; font-size:.85rem; color:#fff; }
+.cap-bubble .circle.on{ background:#141414; border-color:#141414; }
+.cap-bubble .bubble{ border:1px solid #dcdcdc; border-radius:16px; padding:.5rem .9rem; font-size:1rem; color:#141414; flex:1; }
+.cap-bubble.done .bubble{ text-decoration:line-through; color:#9a9a9a; }
+.cap-bubble .x{ border:none; background:transparent; color:#bbb; font-size:1.2rem; cursor:pointer; opacity:0; line-height:1; }
+.cap-bubble:hover .x, .cap-bubble:focus-within .x{ opacity:1; }
+.cap-bubble .x:hover{ color:#FF3B30; }
+
+/* ---- controls ---- */
+.cap-controls{ width:min(580px,92vw); display:none; flex-direction:column; gap:.85rem; }
+.cap-controls.show{ display:flex; }
+.due-pills{ display:flex; flex-wrap:wrap; gap:.55rem; }
+.due-pill{ background:#fff; border:1px solid rgba(0,0,0,.12); border-radius:16px; padding:.5rem 1rem; font-size:.95rem; color:#222; box-shadow:0 6px 16px rgba(0,0,0,.10); cursor:pointer; font-family:inherit; }
+.due-pill[aria-checked="true"]{ font-weight:700; box-shadow:0 8px 20px rgba(0,0,0,.16); }
+.due-pill:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
+.cap-custom{ display:none; gap:.6rem; flex-wrap:wrap; align-items:flex-end; background:#fff; border-radius:14px; padding:.7rem .8rem; box-shadow:0 6px 16px rgba(0,0,0,.10); }
+.cap-custom.show{ display:flex; }
+.cap-custom .field label{ color:#666; }
+.cap-custom .field input{ border:1px solid #ddd; background:#fafafa; color:#141414; border-radius:10px; }
+.cap-custom .sep{ color:#888; }
+.cap-bottom{ display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.linkquest{ position:relative; }
+.linkquest select{ appearance:none; -webkit-appearance:none; background:#fff; border:1px solid rgba(0,0,0,.12); border-radius:16px; padding:.5rem 2.2rem .5rem 1rem; font-size:.95rem; color:#222; box-shadow:0 6px 16px rgba(0,0,0,.10); cursor:pointer; font-family:inherit; }
+.linkquest::after{ content:"▾"; position:absolute; right:.9rem; top:50%; transform:translateY(-50%); pointer-events:none; color:#444; font-size:.8rem; }
+.cap-submit{ background:#fff; border:1px solid rgba(0,0,0,.16); border-radius:16px; padding:.55rem 1.7rem; font-size:1.05rem; cursor:pointer; box-shadow:0 6px 16px rgba(0,0,0,.12); display:none; font-family:inherit; transition:transform .1s; }
+.cap-controls.ready .cap-submit{ display:inline-block; }
+.cap-submit span{ background:linear-gradient(90deg,#FF3B30,#2D7BF5); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:700; }
+.cap-submit:hover{ transform:translateY(-1px); }
+
+/* ---- submit popup (soft) ---- */
+.soft-overlay{ position:fixed; inset:0; background:rgba(20,18,16,.45); display:none; align-items:center; justify-content:center; z-index:75; padding:1rem; }
+.soft-overlay.show{ display:flex; }
+.soft-card{ width:min(420px,100%); background:#fff; border-radius:20px; box-shadow:0 24px 60px rgba(0,0,0,.28); padding:1.4rem 1.3rem; animation:pop .16s ease; }
+.soft-card h3{ margin:0 0 1rem; font-size:1.25rem; color:#141414; letter-spacing:-.4px; }
+.sm-options{ display:flex; flex-direction:column; gap:.6rem; }
+.sm-opt{ border:1px solid rgba(0,0,0,.14); background:#fff; border-radius:14px; padding:.8rem 1rem; font-size:1rem; font-weight:600; color:#141414; cursor:pointer; text-align:left; font-family:inherit; }
+.sm-opt:hover{ background:#f6f6f6; }
+.sm-opt.focus{ outline:2px solid #2D7BF5; outline-offset:1px; border-color:#2D7BF5; }
+.sm-name, .sm-pick{ display:none; margin-top:1rem; }
+.sm-name.show, .sm-pick.show{ display:block; }
+.sm-name input, .sm-pick select{ width:100%; border:1px solid rgba(0,0,0,.18); border-radius:14px; padding:.7rem .9rem; font-size:1rem; font-family:inherit; color:#141414; outline:none; }
+.sm-note{ font-size:.8rem; color:#2D7BF5; margin:.5rem 2px 0; font-weight:600; }
+.sm-customize{ border:none; background:none; color:#2D7BF5; font-weight:600; font-family:inherit; cursor:pointer; padding:.6rem 0 0; font-size:.85rem; display:block; }
+.sm-customize:hover{ text-decoration:underline; }
+
+@media (max-width:600px){
+  .sidenav{ width:auto; height:auto; flex-direction:row; align-items:center; gap:1rem; padding:.9rem 1rem; background:rgba(255,255,255,.0); }
+  .sidenav .nav-main{ flex-direction:row; gap:1rem; margin-top:0; flex-wrap:wrap; }
+  .sidenav .nav-settings{ margin-top:0; margin-left:auto; }
+  main{ padding:5rem 1rem 3rem; }
+  body.home-active main{ padding:0; }
+}
+
+/* ====================== PASS 4: missions filters + rows ====================== */
+.mcount{ font-family:var(--font-mono); font-size:.74rem; font-weight:700; color:var(--ink-soft); white-space:nowrap; }
+.mfilters{ margin-bottom:1.2rem; display:flex; flex-direction:column; gap:.7rem; }
+.mfilter-row{ display:flex; flex-wrap:wrap; gap:.5rem; }
+.fchip{ border:var(--border-w) solid var(--ink); background:var(--bg); padding:.4rem .8rem; border-radius:var(--radius); font-weight:600; font-size:.85rem; cursor:pointer; font-family:inherit; color:var(--ink); transition:transform .07s, box-shadow .07s; }
+.fchip:hover{ transform:translate(-2px,-2px); box-shadow:var(--shadow-sm); }
+.fchip[aria-pressed="true"]{ background:var(--ink); color:var(--bg); box-shadow:var(--shadow-sm); }
+.mfilter-row2{ display:flex; gap:.9rem; align-items:center; flex-wrap:wrap; }
+.dfield{ display:flex; align-items:center; gap:.5rem; }
+.seg-label{ font-family:var(--font-mono); font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--ink-soft); }
+.seg{ display:inline-flex; border:var(--border-w) solid var(--ink); border-radius:var(--radius); overflow:hidden; }
+.seg button{ border:none; background:var(--bg); padding:.35rem .75rem; font-weight:600; font-size:.8rem; cursor:pointer; font-family:inherit; color:var(--ink); }
+.seg button[aria-pressed="true"]{ background:var(--accent); color:#fff; }
+.seg button+button{ border-left:var(--border-w) solid var(--ink); }
+.qfilter select{ border:var(--border-w) solid var(--ink); background:var(--bg); padding:.4rem .7rem; border-radius:var(--radius); font-weight:600; font-family:inherit; color:var(--ink); cursor:pointer; }
+.mgroup-head{ font-family:var(--font-mono); font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--ink-soft); margin:1.1rem 0 .5rem; }
+.mlist > .mgroup-head:first-child{ margin-top:0; }
+.mrow .mtags{ display:flex; align-items:center; gap:.5rem; margin-left:auto; }
+.mrow .prio{ color:var(--accent-2d); font-size:1rem; line-height:1; }
+.mrow .qname-chip{ font-family:var(--font-mono); font-size:.6rem; font-weight:700; border:2px solid var(--ink); padding:.1rem .4rem; border-radius:var(--radius); background:var(--bg-2); white-space:nowrap; }
+
+/* ====================== PASS 5: context menu + mission edit ====================== */
+.mrow .mmore{ border:2px solid var(--ink); background:var(--bg); width:1.8rem; height:1.8rem; border-radius:var(--radius); font-weight:700; line-height:1; cursor:pointer; color:var(--ink); flex:none; }
+.mrow .mmore:hover{ background:var(--ink); color:var(--bg); }
+.ctx-menu{ position:fixed; z-index:90; display:none; flex-direction:column; min-width:150px; background:var(--bg); border:var(--border-w) solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+.ctx-menu.show{ display:flex; }
+.ctx-item{ border:none; background:var(--bg); text-align:left; padding:.6rem .9rem; font-weight:600; font-family:inherit; cursor:pointer; color:var(--ink); }
+.ctx-item+.ctx-item{ border-top:2px solid var(--ink); }
+.ctx-item:hover{ background:var(--accent); color:#fff; }
+.ctx-item.danger:hover{ background:var(--danger); color:#fff; }
+.me-field{ margin-bottom:.9rem; display:flex; flex-direction:column; gap:.35rem; }
+.me-field > label{ font-family:var(--font-mono); font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--ink-soft); }
+.me-row{ display:flex; gap:.8rem; }
+.me-row .me-field{ flex:1; }
+.me-presets{ display:flex; gap:.4rem; flex-wrap:wrap; }
+.me-presets button{ border:2px solid var(--ink); background:var(--bg); padding:.3rem .6rem; border-radius:var(--radius); font-weight:600; font-size:.78rem; cursor:pointer; font-family:inherit; color:var(--ink); }
+.me-presets button:hover{ background:var(--accent); color:#fff; }
+.prio-toggle{ border:var(--border-w) solid var(--ink); background:var(--bg); padding:.6rem .9rem; border-radius:var(--radius); font-weight:700; cursor:pointer; font-family:inherit; color:var(--ink); width:100%; text-align:left; }
+.prio-toggle[aria-checked="true"]{ background:var(--accent-2); box-shadow:var(--shadow-sm); }
+select.wiz-input{ cursor:pointer; }
+#meSwatches{ grid-template-columns:repeat(10,1fr); }
+
+/* ====================== PASS 7: settings (fonts/themes/shape/size) ====================== */
+.set-block{ margin-bottom:1.8rem; max-width:760px; }
+.set-h{ font-size:1.05rem; margin:0 0 .8rem; letter-spacing:-.3px; }
+.set-fonts{ display:grid; grid-template-columns:repeat(auto-fill,minmax(165px,1fr)); gap:.7rem; }
+.font-card{ border:var(--border-w) solid var(--ink); border-radius:var(--radius); padding:.75rem .85rem; cursor:pointer; background:var(--bg); color:var(--ink); text-align:left; transition:transform .07s, box-shadow .07s; }
+.font-card:hover{ transform:translate(-2px,-2px); box-shadow:var(--shadow-sm); }
+.font-card[aria-pressed="true"]{ background:var(--ink); color:var(--bg); box-shadow:var(--shadow-sm); }
+.font-card .fc-name{ font-size:1.15rem; font-weight:700; line-height:1.1; }
+.font-card .fc-sample{ font-size:.78rem; opacity:.65; margin-top:.2rem; }
+.set-themes{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:.7rem; }
+.theme-card{ border:var(--border-w) solid var(--ink); border-radius:var(--radius); padding:.5rem; cursor:pointer; background:var(--bg); transition:transform .07s; }
+.theme-card:hover{ transform:translate(-2px,-2px); }
+.theme-card[aria-pressed="true"]{ box-shadow:var(--shadow-sm); outline:3px solid var(--accent); outline-offset:2px; }
+.theme-swatches{ display:flex; height:38px; border:2px solid var(--ink); border-radius:var(--radius); overflow:hidden; }
+.theme-swatches i{ flex:1; display:block; }
+.theme-name{ font-family:var(--font-mono); font-size:.64rem; font-weight:700; margin-top:.4rem; text-transform:uppercase; letter-spacing:.5px; color:var(--ink); }
+.seg.big button{ padding:.6rem 1.4rem; font-size:.95rem; }
+
+/* ====================== home capture -> brutalist + themed ====================== */
+.cap-card{ background:var(--bg); border:var(--border-w) solid var(--ink); box-shadow:var(--shadow); border-radius:var(--radius); }
+.cap-card.chat .cap-inputrow{ border-top:var(--border-w) solid var(--ink); }
+.cap-input2{ color:var(--ink); }
+.cap-input2::placeholder{ color:var(--ink-soft); }
+.cap-arrow{ color:var(--ink); }
+.cap-bubble .circle{ border:var(--border-w) solid var(--ink); color:#fff; }
+.cap-bubble .circle.on{ background:var(--accent); border-color:var(--ink); }
+.cap-bubble .bubble{ border:var(--border-w) solid var(--ink); border-radius:var(--radius); background:var(--bg-2); color:var(--ink); }
+.cap-bubble.done .bubble{ color:var(--ink-soft); }
+.cap-bubble .x{ color:var(--ink-soft); }
+.cap-bubble .x:hover{ color:var(--danger); }
+.due-pill{ background:var(--bg); border:var(--border-w) solid var(--ink); border-radius:var(--radius); box-shadow:none; color:var(--ink); transition:transform .07s, box-shadow .07s; }
+.due-pill:hover{ transform:translate(-2px,-2px); box-shadow:var(--shadow-sm); }
+.due-pill[aria-checked="true"]{ background:var(--accent); color:#fff; box-shadow:var(--shadow-sm); }
+.due-pill:focus-visible{ outline:3px solid var(--accent-2d); outline-offset:2px; }
+.cap-custom{ background:var(--bg); border:var(--border-w) solid var(--ink); border-radius:var(--radius); box-shadow:none; }
+.cap-custom .field label{ color:var(--ink-soft); }
+.cap-custom .field input{ border:var(--border-w) solid var(--ink); background:var(--bg); color:var(--ink); border-radius:var(--radius); }
+.cap-custom .sep{ color:var(--ink-soft); }
+.linkquest select{ background:var(--bg); border:var(--border-w) solid var(--ink); border-radius:var(--radius); box-shadow:none; color:var(--ink); }
+.linkquest::after{ color:var(--ink); }
+.cap-submit{ background:var(--accent); border:var(--border-w) solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow-sm); }
+.cap-submit span{ background:none; -webkit-background-clip:initial; background-clip:initial; -webkit-text-fill-color:#fff; color:#fff; font-weight:700; }
+.cap-submit:hover{ transform:translate(-2px,-2px); }
+/* submit popup -> brutalist */
+.soft-overlay{ background:rgba(20,18,16,.5); }
+.soft-card{ background:var(--bg); border:var(--border-w) solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow); }
+.soft-card h3{ color:var(--ink); }
+.sm-opt{ border:var(--border-w) solid var(--ink); background:var(--bg); color:var(--ink); border-radius:var(--radius); }
+.sm-opt:hover{ background:var(--bg-2); }
+.sm-opt.focus{ outline:3px solid var(--accent); outline-offset:1px; border-color:var(--ink); }
+.sm-name input, .sm-pick select{ border:var(--border-w) solid var(--ink); border-radius:var(--radius); color:var(--ink); background:var(--bg); }
+.sm-note{ color:var(--accent-2d); }
+.sm-customize{ color:var(--accent-2d); }
+
+/* ====================== QUEST BOARD (full-page) ====================== */
+body.board-active .sidenav{ display:none; }
+body.board-active main{ padding:0; height:100vh; }
+#view-quest{ max-width:none; }
+#view-quest.active{ display:flex; flex-direction:column; height:100%; }
+.qb-top{ display:grid; grid-template-columns:auto 1fr auto; align-items:start; gap:1rem; padding:1.1rem 1.4rem .8rem; border-bottom:var(--border-w) solid var(--ink); }
+.qb-back{ border:var(--border-w) solid var(--ink); background:var(--bg); border-radius:var(--radius); padding:.45rem .8rem; font-weight:700; font-family:inherit; color:var(--ink); cursor:pointer; box-shadow:var(--shadow-sm); white-space:nowrap; transition:transform .07s; }
+.qb-back:hover{ transform:translate(-2px,-2px); }
+.qb-head{ min-width:0; }
+.qb-title{ font-family:inherit; font-size:1.7rem; font-weight:700; letter-spacing:-.6px; border:none; background:transparent; color:var(--ink); width:100%; outline:none; padding:.1rem .2rem; border-radius:var(--radius); }
+.qb-title:focus{ background:var(--bg-2); }
+.qb-controls{ display:flex; align-items:center; gap:.6rem; margin:.45rem 0; }
+.qb-colors{ display:flex; gap:.3rem; }
+.qb-swatch{ width:22px; height:22px; border:2px solid var(--ink); border-radius:var(--radius); cursor:pointer; padding:0; }
+.qb-swatch[aria-checked="true"]{ box-shadow:var(--shadow-sm); transform:translate(-1px,-1px); }
+.qb-menu-btn{ border:2px solid var(--ink); background:var(--bg); border-radius:var(--radius); width:1.9rem; height:1.9rem; font-weight:700; cursor:pointer; color:var(--ink); line-height:1; }
+.qb-menu-btn:hover{ background:var(--ink); color:var(--bg); }
+.qb-summary{ font-family:inherit; font-size:.92rem; color:var(--ink); width:100%; border:none; background:transparent; resize:none; outline:none; overflow:hidden; padding:.2rem; border-radius:var(--radius); line-height:1.35; }
+.qb-summary:focus{ background:var(--bg-2); }
+.qb-summary::placeholder{ color:var(--ink-soft); }
+.qb-progress{ text-align:right; border:var(--border-w) solid var(--ink); border-radius:var(--radius); padding:.4rem .7rem; background:var(--bg); box-shadow:var(--shadow-sm); }
+.qb-pct{ display:block; font-size:1.5rem; font-weight:700; line-height:1; }
+.qb-pmeta{ font-family:var(--font-mono); font-size:.66rem; font-weight:700; color:var(--ink-soft); }
+.qb-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.6rem 1.4rem; border-bottom:var(--border-w) solid var(--ink); flex-wrap:wrap; }
+.qb-tools{ display:flex; align-items:center; gap:.8rem; }
+.qb-addlist-btn{ border:var(--border-w) solid var(--ink); background:var(--accent); color:#fff; border-radius:var(--radius); padding:.4rem .9rem; font-weight:700; font-family:inherit; cursor:pointer; box-shadow:var(--shadow-sm); }
+.qb-addlist-btn:hover{ transform:translate(-2px,-2px); }
+.due-pills.board{ gap:.4rem; }
+.due-pills.board .due-pill{ padding:.32rem .7rem; font-size:.8rem; }
+.qb-zoom{ display:flex; align-items:center; gap:.5rem; }
+.qb-zoom button{ border:var(--border-w) solid var(--ink); background:var(--bg); width:2rem; height:2rem; border-radius:var(--radius); font-weight:700; cursor:pointer; color:var(--ink); line-height:1; }
+.qb-zoom button:hover{ background:var(--ink); color:var(--bg); }
+#qbZoomLabel{ font-family:var(--font-mono); font-size:.74rem; font-weight:700; min-width:3rem; text-align:center; }
+.qb-scroll{ flex:1; overflow:auto; padding:1.2rem 1.4rem; }
+.qb-canvas{ position:relative; }
+.qb-board{ position:relative; }
+.qb-list{ position:absolute; width:290px; border:var(--border-w) solid var(--ink); border-radius:var(--radius); background:var(--bg-2); box-shadow:var(--shadow-sm); display:flex; flex-direction:column; max-height:560px; }
+.qb-list.dragging-list{ z-index:20; box-shadow:var(--shadow); opacity:.96; }
+.qb-list-head{ display:flex; align-items:center; gap:.4rem; padding:.5rem .6rem; border-bottom:var(--border-w) solid var(--ink); background:var(--list-accent, var(--accent)); flex:none; cursor:grab; user-select:none; }
+.qb-list.dragging-list .qb-list-head{ cursor:grabbing; }
+.qb-list-name{ flex:1; font-family:inherit; font-weight:700; color:#fff; font-size:.95rem; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.qb-list-rename{ flex:1; border:2px solid #fff; background:rgba(255,255,255,.18); font-family:inherit; font-weight:700; color:#fff; font-size:.95rem; outline:none; min-width:0; border-radius:var(--radius); padding:.1rem .3rem; }
+.qb-list-rename::selection{ background:rgba(255,255,255,.4); }
+.qb-list-more{ border:2px solid #fff; background:transparent; color:#fff; border-radius:var(--radius); width:1.6rem; height:1.6rem; font-weight:700; cursor:pointer; line-height:1; flex:none; }
+.qb-cards{ padding:.6rem; display:flex; flex-direction:column; gap:.5rem; overflow:auto; min-height:44px; }
+.qb-cards.drop{ background:var(--bg); outline:2px dashed var(--accent); outline-offset:-5px; }
+.qb-card{ display:flex; align-items:center; gap:.5rem; border:var(--border-w) solid var(--ink); background:var(--bg); border-radius:var(--radius); padding:.5rem .6rem; cursor:grab; transition:transform .06s, box-shadow .06s; }
+.qb-card:hover{ box-shadow:var(--shadow-sm); transform:translate(-1px,-1px); }
+.qb-card.dragging{ opacity:.4; }
+.qb-card.done .qb-card-title{ text-decoration:line-through; color:var(--ink-soft); }
+.qb-card-chk{ width:1.2rem; height:1.2rem; border:2px solid var(--ink); border-radius:var(--radius); background:var(--bg); cursor:pointer; flex:none; color:#fff; font-size:.72rem; line-height:1; padding:0; }
+.qb-card-chk.on{ background:var(--list-accent, var(--accent)); }
+.qb-card-title{ flex:1; font-weight:600; font-size:.9rem; }
+.qb-card-due{ font-family:var(--font-mono); font-size:.58rem; font-weight:700; color:var(--ink-soft); white-space:nowrap; }
+.qb-empty{ font-family:var(--font-mono); font-size:.72rem; color:var(--ink-soft); padding:.4rem; }
+.qb-card-add{ margin:.5rem; border:var(--border-w) solid var(--ink); background:var(--bg); border-radius:var(--radius); padding:.5rem .6rem; font-family:inherit; font-weight:600; color:var(--ink); outline:none; flex:none; }
+.qb-card-add::placeholder{ color:var(--ink-soft); }
+.qb-card-add:focus{ box-shadow:var(--shadow-sm); }
+.ctx-colors{ display:grid; grid-template-columns:repeat(5,1fr); gap:.3rem; padding:.5rem; border-bottom:2px solid var(--ink); }
+.ctx-colors .csw{ width:100%; aspect-ratio:1; border:2px solid var(--ink); border-radius:var(--radius); cursor:pointer; padding:0; }
+.ctx-colors .csw[aria-checked="true"]{ box-shadow:var(--shadow-sm); transform:translate(-1px,-1px); }
+
+/* resize handle (lists + notes) */
+.qb-resize{ position:absolute; right:-2px; bottom:-2px; width:16px; height:16px; cursor:nwse-resize; background:linear-gradient(135deg, transparent 45%, var(--ink) 45%, var(--ink) 62%, transparent 62%); z-index:3; }
+.qb-list, .qb-note{ overflow:visible; }
+
+/* connect button + linking state */
+.qb-connect{ border:2px solid #fff; background:transparent; color:#fff; border-radius:var(--radius); width:1.6rem; height:1.6rem; font-weight:700; cursor:pointer; line-height:1; flex:none; }
+.qb-connect:hover{ background:rgba(255,255,255,.22); }
+.qb-list.linking{ outline:3px dashed var(--accent); outline-offset:3px; }
+
+/* lock */
+.qb-list.locked .qb-cards, .qb-list.locked .qb-card-add{ filter:grayscale(.6) opacity(.55); }
+.qb-lock{ position:absolute; left:0; right:0; top:42px; bottom:0; display:flex; align-items:center; justify-content:center; text-align:center; border-radius:var(--radius); }
+.qb-lock span{ font-family:var(--font-mono); font-size:.72rem; font-weight:700; color:var(--ink); background:var(--bg); border:var(--border-w) solid var(--ink); border-radius:var(--radius); padding:.5rem .7rem; box-shadow:var(--shadow-sm); line-height:1.5; }
+.ctx-lock{ border-bottom:2px solid var(--ink); padding:.45rem; display:flex; flex-direction:column; gap:.25rem; max-height:160px; overflow:auto; }
+.ctx-lock-label{ font-family:var(--font-mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--ink-soft); }
+.ctx-lock button{ border:2px solid var(--ink); background:var(--bg); border-radius:var(--radius); padding:.25rem .5rem; font-family:inherit; font-weight:600; font-size:.78rem; cursor:pointer; color:var(--ink); text-align:left; }
+.ctx-lock button[aria-checked="true"]{ background:var(--accent); color:#fff; }
+
+/* notes */
+.qb-note{ position:absolute; border:var(--border-w) solid var(--ink); border-radius:var(--radius); background:var(--note-accent,#F2C200); box-shadow:var(--shadow-sm); display:flex; flex-direction:column; }
+.qb-note-head{ display:flex; align-items:center; gap:.4rem; padding:.35rem .5rem; border-bottom:var(--border-w) solid var(--ink); cursor:grab; user-select:none; }
+.qb-note.dragging-list .qb-note-head{ cursor:grabbing; }
+.qb-note-grip{ flex:1; font-family:var(--font-mono); font-weight:700; font-size:.7rem; letter-spacing:1px; text-transform:uppercase; color:var(--ink); }
+.qb-note-more{ border:2px solid var(--ink); background:transparent; color:var(--ink); border-radius:var(--radius); width:1.5rem; height:1.5rem; font-weight:700; cursor:pointer; line-height:1; flex:none; }
+.qb-note-text{ flex:1; border:none; background:transparent; resize:none; outline:none; font-family:inherit; font-weight:500; color:var(--ink); padding:.6rem; }
+.qb-note-text::placeholder{ color:rgba(20,18,16,.45); }
+
+/* arrows */
+.qb-arrows{ position:absolute; left:0; top:0; pointer-events:none; z-index:0; overflow:visible; }
+.qb-arrows .qb-arrow{ stroke:var(--ink); stroke-width:2.5; fill:none; }
+.qb-arrows .qb-arrow-hit{ stroke:rgba(0,0,0,0); stroke-width:16; fill:none; pointer-events:stroke; cursor:pointer; }
+.qb-arrows marker path{ fill:var(--ink); }
+.qb-list, .qb-note{ z-index:1; }
+.qb-note.linking{ outline:3px dashed var(--accent); outline-offset:3px; }
+
+/* tabs */
+.qb-tabs{ display:flex; align-items:flex-end; gap:.35rem; padding:.6rem 1.4rem 0; flex-wrap:wrap; border-bottom:var(--border-w) solid var(--ink); }
+.qb-tab{ display:flex; align-items:center; gap:.45rem; border:var(--border-w) solid var(--ink); border-bottom:none; background:var(--bg-2); border-radius:var(--radius) var(--radius) 0 0; padding:.4rem .65rem; cursor:pointer; font-family:inherit; position:relative; top:var(--border-w); }
+.qb-tab.active{ background:var(--bg); }
+.qb-tab-dot{ width:12px; height:12px; border:2px solid var(--ink); border-radius:50%; background:var(--tab-accent,var(--accent)); flex:none; }
+.qb-tab-name{ font-weight:700; font-size:.85rem; color:var(--ink); white-space:nowrap; }
+.qb-tab-more{ border:none; background:transparent; color:var(--ink-soft); cursor:pointer; font-weight:700; padding:0 .1rem; line-height:1; }
+.qb-tab-more:hover{ color:var(--ink); }
+.qb-tab-rename{ font-family:inherit; font-weight:700; font-size:.85rem; border:2px solid var(--ink); border-radius:var(--radius); padding:.05rem .3rem; outline:none; width:9ch; }
+.qb-tab-add{ border:var(--border-w) solid var(--ink); background:var(--bg-2); border-radius:var(--radius) var(--radius) 0 0; border-bottom:none; width:2rem; height:2rem; font-weight:700; cursor:pointer; color:var(--ink); position:relative; top:var(--border-w); }
+.qb-tab-add:hover{ background:var(--ink); color:var(--bg); }
+
+.set-sub{ color:var(--ink-soft); font-size:.88rem; margin:0 0 .9rem; max-width:560px; }
+.data-actions{ display:flex; gap:.6rem; flex-wrap:wrap; }
+.data-actions .btn.danger{ background:var(--danger); color:#fff; }
+.data-stats{ font-family:var(--font-mono); font-size:.72rem; font-weight:700; color:var(--ink-soft); margin-top:.9rem; }
+
+/* toast */
+.toast{
+  position:fixed; left:50%; bottom:1.4rem; transform:translateX(-50%) translateY(140%);
+  background:var(--ink); color:var(--bg); border:var(--border-w) solid var(--ink);
+  padding:.6rem 1rem; border-radius:var(--radius); font-weight:700; font-size:.85rem;
+  box-shadow:var(--shadow); z-index:80; transition:transform .22s ease; max-width:90vw;
+}
+.toast.show{ transform:translateX(-50%) translateY(0); }
+.toast:empty{ display:none; }
+
+@media (max-width:560px){
+  nav.tabs{ width:100%; margin-left:0; }
+  header.topbar{ flex-wrap:wrap; }
+}
+@media (prefers-reduced-motion:reduce){
+  *{ transition:none !important; animation:none !important; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="sidenav" aria-label="Primary">
+    <button class="brand" id="brandHome">missions.io</button>
+    <div class="nav-main">
+      <button class="navi" data-view="dashboard">dashboard</button>
+      <button class="navi" data-view="quests">quests</button>
+      <button class="navi" data-view="missions">missions</button>
+      <button class="navi" data-view="inventory">inventory</button>
+    </div>
+    <button class="navi nav-settings" data-view="settings">settings</button>
+  </nav>
+
+  <main>
+    <!-- ============ HOME / CAPTURE (redesigned) ============ -->
+    <section class="view active" id="view-home" role="tabpanel">
+      <div class="cap-stage">
+        <div class="cap-card" id="capCard">
+          <div class="cap-list" id="capList" aria-live="polite"></div>
+          <div class="cap-inputrow">
+            <input id="capInput" class="cap-input2" type="text" autocomplete="off" placeholder="Type a mission, hit enter" aria-label="New mission">
+            <button class="cap-arrow" id="capArrow" aria-label="Add mission">&rsaquo;</button>
+          </div>
+        </div>
+
+        <div class="cap-controls" id="capControls">
+          <div class="due-pills" id="dueGroup" role="radiogroup" aria-label="Due time">
+            <button class="due-pill" role="radio" data-due="hour"     aria-checked="true"  tabindex="0">In an hour</button>
+            <button class="due-pill" role="radio" data-due="couple"   aria-checked="false" tabindex="-1">In a couple hours</button>
+            <button class="due-pill" role="radio" data-due="tonight"  aria-checked="false" tabindex="-1">Tonight</button>
+            <button class="due-pill" role="radio" data-due="tomorrow" aria-checked="false" tabindex="-1">Tomorrow</button>
+            <button class="due-pill" role="radio" data-due="custom"   aria-checked="false" tabindex="-1">Custom</button>
+          </div>
+          <div class="cap-custom" id="customDue">
+            <div class="field"><label for="cdHrs">Hrs from now</label><input id="cdHrs" class="num" type="number" min="0" max="240" value="2"></div>
+            <span class="sep">:</span>
+            <div class="field"><label for="cdMin">Min</label><input id="cdMin" class="num" type="number" min="0" max="59" value="0"></div>
+            <span class="sep">or</span>
+            <div class="field"><label for="cdDateTime">Pick date / time</label><input id="cdDateTime" type="datetime-local"></div>
+          </div>
+          <div class="cap-bottom">
+            <div class="linkquest"><select id="linkQuestSel" aria-label="Link to quest"></select></div>
+            <button class="cap-submit" id="capSubmit"><span>Submit</span></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DASHBOARD (its own tab — built later) ============ -->
+    <section class="view" id="view-dashboard" role="tabpanel">
+      <span class="eyebrow">overview</span>
+      <h1 class="view-title">Dashboard</h1>
+      <div class="empty">Your dashboard widgets land in a later pass.</div>
+    </section>
+
+    <!-- ============ QUESTS (stub — full build in Pass 2) ============ -->
+    <section class="view" id="view-quests" role="tabpanel">
+      <div class="view-head">
+        <div><span class="eyebrow">master goals</span><h1 class="view-title">Quests</h1></div>
+        <button class="btn primary" id="newQuestBtn">+ New Quest</button>
+      </div>
+      <div id="questsGrid" class="grid"></div>
+      <div id="questsMore"></div>
+    </section>
+
+    <!-- ============ MISSIONS (Pass 4: list + filters) ============ -->
+    <section class="view" id="view-missions" role="tabpanel">
+      <div class="view-head">
+        <div><span class="eyebrow">everything to do</span><h1 class="view-title">Missions</h1></div>
+        <span class="mcount" id="mCount">0 missions</span>
+      </div>
+      <div class="mfilters">
+        <div class="mfilter-row" id="mFilterRow">
+          <button class="fchip" data-mode="all" aria-pressed="true">All</button>
+          <button class="fchip" data-mode="today">Today</button>
+          <button class="fchip" data-mode="yesterday">Yesterday</button>
+          <button class="fchip" data-mode="week">This week</button>
+          <button class="fchip" data-mode="month">This month</button>
+          <button class="fchip" data-mode="year">This year</button>
+          <button class="fchip" data-mode="due">Due date</button>
+          <button class="fchip" data-mode="priority">★ High priority</button>
+        </div>
+        <div class="mfilter-row2">
+          <div class="dfield" id="dateFieldWrap" style="display:none">
+            <span class="seg-label">by date</span>
+            <div class="seg">
+              <button data-field="created" aria-pressed="true">created</button>
+              <button data-field="modified" aria-pressed="false">modified</button>
+            </div>
+          </div>
+          <div class="qfilter"><select id="questFilter" aria-label="Filter by quest"></select></div>
+        </div>
+      </div>
+      <div id="missionsList" class="mlist"></div>
+    </section>
+
+    <!-- ============ INVENTORY (later) ============ -->
+    <section class="view" id="view-inventory" role="tabpanel">
+      <span class="eyebrow">inventory &amp; resources</span>
+      <h1 class="view-title">Inventory</h1>
+      <div class="empty">This room is being built in a later pass.</div>
+    </section>
+
+    <!-- ============ SETTINGS (stub — full build in Pass 7–8) ============ -->
+    <section class="view" id="view-settings" role="tabpanel">
+      <span class="eyebrow">make it yours</span>
+      <h1 class="view-title">Settings</h1>
+
+      <div class="set-block">
+        <h2 class="set-h">Font</h2>
+        <div class="set-fonts" id="setFonts"></div>
+      </div>
+
+      <div class="set-block">
+        <h2 class="set-h">Color combo</h2>
+        <div class="set-themes" id="setThemes"></div>
+      </div>
+
+      <div class="set-block">
+        <h2 class="set-h">Shape</h2>
+        <div class="seg big" id="setShape">
+          <button data-shape="rect" aria-pressed="true">Rectangle</button>
+          <button data-shape="round" aria-pressed="false">Rounded</button>
+        </div>
+      </div>
+
+      <div class="set-block">
+        <h2 class="set-h">Font size</h2>
+        <div class="seg big" id="setSize">
+          <button data-size="s" aria-pressed="false">S</button>
+          <button data-size="m" aria-pressed="true">M</button>
+          <button data-size="l" aria-pressed="false">L</button>
+        </div>
+      </div>
+
+      <div class="set-block">
+        <h2 class="set-h">General</h2>
+        <div class="row-toggle">
+          <div class="meta">
+            <b>Open on dashboard</b>
+            <span>Off = open straight on the capture screen (default).</span>
+          </div>
+          <button class="switch" id="dashToggle" role="switch" aria-checked="false" aria-label="Open on dashboard"></button>
+        </div>
+      </div>
+
+      <div class="set-block">
+        <h2 class="set-h">Data</h2>
+        <p class="set-sub">Everything saves automatically in this browser. Export a backup file, or import one to move between devices.</p>
+        <div class="data-actions">
+          <button class="btn primary" id="dataExport">↓ Export JSON</button>
+          <button class="btn secondary" id="dataImport">↑ Import JSON</button>
+          <input type="file" id="dataFile" accept="application/json,.json" hidden>
+          <button class="btn ghost" id="dataReset">Reset all data</button>
+        </div>
+        <div class="data-stats" id="dataStats"></div>
+      </div>
+    </section>
+
+    <!-- ============ QUEST BOARD (full-page) ============ -->
+    <section class="view" id="view-quest" role="tabpanel">
+      <div class="qb-top">
+        <button class="qb-back" id="qbBack" aria-label="Back to Quests">‹ Quests</button>
+        <div class="qb-head">
+          <input class="qb-title" id="qbTitle" aria-label="Quest title">
+          <div class="qb-controls">
+            <div class="qb-colors" id="qbColors" role="radiogroup" aria-label="Quest color"></div>
+            <button class="qb-menu-btn" id="qbMenu" aria-label="Quest options">⋯</button>
+          </div>
+          <textarea class="qb-summary" id="qbSummary" rows="1" placeholder="Add a summary…"></textarea>
+        </div>
+        <div class="qb-progress">
+          <span class="qb-pct" id="qbPct">0%</span>
+          <span class="qb-pmeta" id="qbPmeta">0 / 0</span>
+        </div>
+      </div>
+      <div class="qb-tabs" id="qbTabs"></div>
+      <div class="qb-toolbar">
+        <div class="due-pills board" id="qbDue" role="radiogroup" aria-label="Default due for new missions">
+          <button class="due-pill" role="radio" data-due="hour"     aria-checked="true"  tabindex="0">In an hour</button>
+          <button class="due-pill" role="radio" data-due="couple"   aria-checked="false" tabindex="-1">Couple hrs</button>
+          <button class="due-pill" role="radio" data-due="tonight"  aria-checked="false" tabindex="-1">Tonight</button>
+          <button class="due-pill" role="radio" data-due="tomorrow" aria-checked="false" tabindex="-1">Tomorrow</button>
+        </div>
+        <div class="qb-tools">
+          <button class="qb-addlist-btn" id="qbAddNote">+ Note</button>
+          <button class="qb-addlist-btn" id="qbAddList">+ Add list</button>
+          <div class="qb-zoom">
+            <button id="qbZoomOut" aria-label="Zoom out">−</button>
+            <span id="qbZoomLabel">100%</span>
+            <button id="qbZoomIn" aria-label="Zoom in">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="qb-scroll">
+        <div class="qb-canvas" id="qbCanvas">
+          <div class="qb-board" id="qbBoard"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ===== Quest creation wizard (Pass 2) ===== -->
+<div class="modal-overlay" id="questModal" role="dialog" aria-modal="true" aria-label="Create quest">
+  <div class="modal">
+    <div class="wiz-head">
+      <span class="wiz-step" id="wizStepLabel">Step 1 / 6</span>
+      <button class="wiz-close" id="wizClose" aria-label="Close">×</button>
+    </div>
+    <div class="wiz-progress" id="wizProgress"></div>
+    <div class="wiz-body">
+      <div class="wiz-panel active" data-step="0">
+        <p class="step-q"><small>Quest name</small>What's the big goal?</p>
+        <input id="qName" class="wiz-input" type="text" placeholder="e.g. Run a half marathon" autocomplete="off">
+        <p class="wiz-err" id="errName">Give your quest a name.</p>
+      </div>
+      <div class="wiz-panel" data-step="1">
+        <p class="step-q"><small>Color</small>Pick a color <span style="font-weight:400;font-size:.8rem;color:var(--ink-soft)">(← → to choose)</span></p>
+        <div class="swatches" id="qSwatches" role="radiogroup" aria-label="Quest color"></div>
+      </div>
+      <div class="wiz-panel" data-step="2">
+        <p class="step-q"><small>Category</small>Where does it belong?</p>
+        <div class="cats" id="qCats" role="radiogroup" aria-label="Category"></div>
+        <p class="wiz-err" id="errCat">Pick a category.</p>
+      </div>
+      <div class="wiz-panel" data-step="3">
+        <p class="step-q"><small>Summary · optional</small>Anything to remember?</p>
+        <textarea id="qSummary" class="wiz-input" placeholder="Why it matters, the finish line, notes…"></textarea>
+      </div>
+      <div class="wiz-panel" data-step="4">
+        <p class="step-q"><small>Image · optional</small>Give it a face</p>
+        <div class="imgdrop" id="qImgDrop">Click to upload an image</div>
+        <input id="qImgFile" type="file" accept="image/*" hidden>
+        <div class="imgprev" id="qImgPrev"></div>
+        <div class="img-actions" id="qImgActions">
+          <button class="btn ghost" id="qImgRemove" type="button">Remove image</button>
+        </div>
+      </div>
+      <div class="wiz-panel" data-step="5">
+        <p class="step-q"><small>Review</small>Look good?</p>
+        <div class="review-box" id="qReview"></div>
+      </div>
+    </div>
+    <div class="wiz-foot">
+      <button class="btn ghost" id="wizBack">← Back</button>
+      <button class="btn primary" id="wizNext">Next →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== Submit popup (Pass: main page) ===== -->
+<div class="soft-overlay" id="submitModal" role="dialog" aria-modal="true" aria-label="Save missions">
+  <div class="soft-card">
+    <h3 id="smTitle">Save this mission</h3>
+    <div class="sm-options">
+      <button class="sm-opt" id="smNew">New mission</button>
+      <button class="sm-opt" id="smExisting">Link to existing quest</button>
+    </div>
+    <div class="sm-name" id="smNameWrap">
+      <input id="smName" type="text" autocomplete="off" placeholder="Name this list, hit enter">
+      <button class="sm-customize" id="smCustomize" type="button">Set up color, category &amp; image →</button>
+      <p class="sm-note" id="smLinkedNote"></p>
+    </div>
+    <div class="sm-pick" id="smPickWrap">
+      <select id="smPick" aria-label="Choose quest"></select>
+    </div>
+  </div>
+</div>
+
+<!-- ===== List + quest-board context menus ===== -->
+<div class="ctx-menu" id="listMenu" role="menu">
+  <div class="ctx-colors" id="listColors"></div>
+  <div class="ctx-lock" id="listLock"></div>
+  <button class="ctx-item" data-act="duplicate" role="menuitem">Duplicate list</button>
+  <button class="ctx-item danger" data-act="remove" role="menuitem">Remove list</button>
+</div>
+<div class="ctx-menu" id="noteMenu" role="menu">
+  <div class="ctx-colors" id="noteColors"></div>
+  <button class="ctx-item danger" data-act="remove" role="menuitem">Remove note</button>
+</div>
+<div class="ctx-menu" id="tabMenu" role="menu">
+  <div class="ctx-colors" id="tabColors"></div>
+  <button class="ctx-item" data-act="rename" role="menuitem">Rename</button>
+  <button class="ctx-item" data-act="duplicate" role="menuitem">Duplicate tab</button>
+  <button class="ctx-item danger" data-act="remove" role="menuitem">Remove tab</button>
+</div>
+<div class="ctx-menu" id="qbMenuPop" role="menu">
+  <button class="ctx-item" data-act="edit" role="menuitem">Edit details…</button>
+  <button class="ctx-item danger" data-act="delete" role="menuitem">Delete quest</button>
+</div>
+
+<!-- ===== Mission context menu + edit modal (Pass 5) ===== -->
+<div class="ctx-menu" id="ctxMenu" role="menu">
+  <button class="ctx-item" data-act="edit" role="menuitem">Edit</button>
+  <button class="ctx-item" data-act="duplicate" role="menuitem">Duplicate</button>
+  <button class="ctx-item danger" data-act="remove" role="menuitem">Remove</button>
+</div>
+
+<div class="modal-overlay" id="missionModal" role="dialog" aria-modal="true" aria-label="Edit mission">
+  <div class="modal">
+    <div class="wiz-head"><span class="wiz-step">Edit mission</span><button class="wiz-close" id="meClose" aria-label="Close">×</button></div>
+    <div class="wiz-body">
+      <div class="me-field"><label for="meTitle">Title</label><input id="meTitle" class="wiz-input" type="text"></div>
+      <div class="me-field">
+        <label for="meDue">Due</label>
+        <div class="me-presets">
+          <button type="button" data-p="hour">In an hour</button>
+          <button type="button" data-p="couple">Couple hours</button>
+          <button type="button" data-p="tonight">Tonight</button>
+          <button type="button" data-p="tomorrow">Tomorrow</button>
+        </div>
+        <input id="meDue" class="wiz-input" type="datetime-local">
+      </div>
+      <div class="me-row">
+        <div class="me-field"><label for="meQuest">Quest</label><select id="meQuest" class="wiz-input"></select></div>
+        <div class="me-field"><label for="meAmount">Amount ($)</label><input id="meAmount" class="wiz-input" type="number" min="0" step="1" value="0"></div>
+      </div>
+      <div class="me-field"><label for="meLocation">Location</label><input id="meLocation" class="wiz-input" type="text" placeholder="optional"></div>
+      <div class="me-field"><label>Color</label><div class="swatches" id="meSwatches" role="radiogroup" aria-label="Mission color"></div></div>
+      <div class="me-field"><button class="prio-toggle" id="mePrio" role="switch" aria-checked="false">★ High priority</button></div>
+    </div>
+    <div class="wiz-foot">
+      <button class="btn ghost" id="meDelete">Delete</button>
+      <button class="btn primary" id="meSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   STATE + PERSISTENCE
+   ============================================================ */
+const LS_KEY = "missions_io_v1";
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+const defaultState = () => ({
+  settings: { dashboardEnabled:false, font:"space-grotesk", theme:"default", shape:"rect", fontSize:"m" },
+  quests:   [],   // {id,name,color,category,summary,image,createdAt}
+  missions: [],   // {id,title,questId,due,createdAt,modifiedAt,done,priority,location,amount,color}
+});
+
+let state = load();
+migrate();
+
+function migrate(){
+  let changed=false;
+  state.quests.forEach(q=>{
+    if(!Array.isArray(q.boards) || !q.boards.length){
+      const lists = (Array.isArray(q.lists)&&q.lists.length) ? q.lists : [{id:uid(), name:"Tasks"}];
+      const notes = Array.isArray(q.notes) ? q.notes : [];
+      const links = Array.isArray(q.links) ? q.links : [];
+      q.boards=[{ id:uid(), name:"Board", color:q.color||"#234BFF", lists, notes, links }];
+      delete q.lists; delete q.notes; delete q.links;
+      changed=true;
+    }
+    q.boards.forEach(b=>{
+      if(!Array.isArray(b.lists)) { b.lists=[]; changed=true; }
+      b.lists.forEach((l,i)=>{
+        if(typeof l.x!=="number" || typeof l.y!=="number"){ l.x=i*308; l.y=0; changed=true; }
+        if(!l.color){ l.color=b.color||q.color||"#234BFF"; changed=true; }
+      });
+      if(!Array.isArray(b.notes)){ b.notes=[]; changed=true; }
+      if(!Array.isArray(b.links)){ b.links=[]; changed=true; }
+      if(!b.color){ b.color=q.color||"#234BFF"; changed=true; }
+      if(!b.name){ b.name="Board"; changed=true; }
+    });
+    if(!q.activeBoard || !q.boards.some(b=>b.id===q.activeBoard)){ q.activeBoard=q.boards[0].id; changed=true; }
+  });
+  state.missions.forEach(m=>{
+    if(m.questId){
+      const q=state.quests.find(x=>x.id===m.questId);
+      if(q){
+        const all=[]; q.boards.forEach(b=> b.lists.forEach(l=> all.push(l.id)));
+        if(!m.listId || !all.includes(m.listId)){
+          const fb=q.boards.find(b=>b.lists.length)||q.boards[0];
+          if(!fb.lists.length){ fb.lists.push({id:uid(),name:"Tasks",x:0,y:0,color:fb.color}); }
+          m.listId=fb.lists[0].id; changed=true;
+        }
+      } else { m.questId=null; m.listId=null; changed=true; }
+    } else if(m.listId){ m.listId=null; changed=true; }
+  });
+  if(changed) save();
+}
+function firstListId(q){
+  if(!q || !q.boards) return null;
+  const b=q.boards.find(x=>x.lists && x.lists.length) || q.boards[0];
+  return b && b.lists && b.lists[0] ? b.lists[0].id : null;
+}
+function activeBoard(q){
+  if(!q.boards || !q.boards.length) return null;
+  let b=q.boards.find(x=>x.id===q.activeBoard);
+  if(!b){ b=q.boards[0]; q.activeBoard=b.id; }
+  return b;
+}
+function curQuest(){ return state.quests.find(x=>x.id===boardQuestId); }
+function curBoard(){ const q=curQuest(); return q?activeBoard(q):null; }
+
+function load(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return defaultState();
+    return Object.assign(defaultState(), JSON.parse(raw));
+  }catch(e){ return defaultState(); }
+}
+function save(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+  catch(e){ toast("Couldn't save — storage blocked"); }
+}
+
+/* ============================================================
+   DUE-TIME HELPERS
+   ============================================================ */
+function dueFromPreset(preset){
+  const now = new Date();
+  switch(preset){
+    case "hour":     return now.getTime() + 60*60*1000;
+    case "couple":   return now.getTime() + 3*60*60*1000;
+    case "tonight":  { const d=new Date(now); d.setHours(22,0,0,0); if(d<=now) d.setDate(d.getDate()+1); return d.getTime(); }
+    case "tomorrow": { const d=new Date(now); d.setDate(d.getDate()+1); d.setHours(13,0,0,0); return d.getTime(); }
+    case "custom":   {
+      const dt = document.getElementById("cdDateTime").value;
+      if(dt){ const t = new Date(dt).getTime(); if(!isNaN(t)) return t; }
+      const h = parseInt(document.getElementById("cdHrs").value||"0",10);
+      const m = parseInt(document.getElementById("cdMin").value||"0",10);
+      return now.getTime() + (h*60+m)*60*1000;
+    }
+    default: return now.getTime() + 60*60*1000;
+  }
+}
+function dueLabel(ts){
+  const d = new Date(ts), now = new Date();
+  const sameDay = d.toDateString()===now.toDateString();
+  const tmr = new Date(now); tmr.setDate(now.getDate()+1);
+  const isTmr = d.toDateString()===tmr.toDateString();
+  const time = d.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+  if(sameDay) return "Today " + time;
+  if(isTmr)   return "Tmrw " + time;
+  return d.toLocaleDateString([], {month:"short", day:"numeric"}) + " " + time;
+}
+
+/* ============================================================
+   CAPTURE (redesigned main page)
+   ============================================================ */
+let staged = [];          // {title, due, done}
+let currentDue = "hour";
+
+const capCard      = document.getElementById("capCard");
+const capList      = document.getElementById("capList");
+const capInput     = document.getElementById("capInput");
+const capArrow     = document.getElementById("capArrow");
+const dueGroup     = document.getElementById("dueGroup");
+const customDue    = document.getElementById("customDue");
+const capControls  = document.getElementById("capControls");
+const linkQuestSel = document.getElementById("linkQuestSel");
+const capSubmit    = document.getElementById("capSubmit");
+
+function addStaged(){
+  const v = capInput.value.trim(); if(!v) return;
+  staged.push({ title:v, due:dueFromPreset(currentDue), done:false });
+  capInput.value=""; renderStage(); capInput.focus();
+}
+capInput.addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); addStaged(); } });
+capInput.addEventListener("input", updateControlsVisibility);
+capArrow.addEventListener("click", addStaged);
+
+function renderStage(){
+  capCard.classList.toggle("chat", staged.length>0);
+  capList.innerHTML = staged.map((m,i)=>`
+    <div class="cap-bubble ${m.done?'done':''}" data-i="${i}">
+      <button class="circle ${m.done?'on':''}" aria-label="Mark done">${m.done?'✓':''}</button>
+      <span class="bubble" title="${escapeHtml(dueLabel(m.due))}">${escapeHtml(m.title)}</span>
+      <button class="x" aria-label="Remove">×</button>
+    </div>`).join("");
+  capList.querySelectorAll(".cap-bubble").forEach(b=>{
+    const i=+b.dataset.i;
+    b.querySelector(".circle").addEventListener("click", ()=>{ staged[i].done=!staged[i].done; renderStage(); });
+    b.querySelector(".x").addEventListener("click", ()=>{ staged.splice(i,1); renderStage(); });
+  });
+  capList.scrollTop = capList.scrollHeight;
+  updateControlsVisibility();
+}
+function updateControlsVisibility(){
+  const hasText = capInput.value.trim().length>0;
+  capControls.classList.toggle("show", hasText || staged.length>0);
+  capControls.classList.toggle("ready", staged.length>0);
+}
+
+/* due selector — arrow keys + click */
+dueGroup.addEventListener("click", e=>{ const o=e.target.closest(".due-pill"); if(o) selectDue(o); });
+dueGroup.addEventListener("keydown", e=>{
+  const opts=[...dueGroup.querySelectorAll(".due-pill")];
+  let idx=opts.findIndex(o=>o.getAttribute("aria-checked")==="true");
+  if(["ArrowRight","ArrowDown"].includes(e.key)){ e.preventDefault(); const n=opts[(idx+1)%opts.length]; selectDue(n); n.focus(); }
+  else if(["ArrowLeft","ArrowUp"].includes(e.key)){ e.preventDefault(); const n=opts[(idx-1+opts.length)%opts.length]; selectDue(n); n.focus(); }
+});
+function selectDue(opt){
+  dueGroup.querySelectorAll(".due-pill").forEach(o=>{ o.setAttribute("aria-checked","false"); o.tabIndex=-1; });
+  opt.setAttribute("aria-checked","true"); opt.tabIndex=0;
+  currentDue=opt.dataset.due;
+  customDue.classList.toggle("show", currentDue==="custom");
+}
+
+/* link-to-quest dropdown */
+function refreshLinkQuest(){
+  const cur=linkQuestSel.value;
+  linkQuestSel.innerHTML = '<option value="">Link to quest</option>' +
+    state.quests.map(q=>`<option value="${q.id}">${escapeHtml(q.name)}</option>`).join("");
+  if(cur) linkQuestSel.value=cur;
+}
+
+/* commit + reset */
+function commitStaged(questId){
+  const q = questId? state.quests.find(x=>x.id===questId) : null;
+  const listId = firstListId(q);
+  staged.forEach(m=>{
+    state.missions.push({
+      id:uid(), title:m.title, questId:questId||null, listId, due:m.due,
+      createdAt:Date.now(), modifiedAt:Date.now(),
+      done:!!m.done, priority:false, location:"", amount:0,
+      color: q? q.color : "#234BFF"
+    });
+  });
+  save();
+}
+function resetCapture(){ staged=[]; capInput.value=""; linkQuestSel.value=""; renderStage(); }
+
+/* ============================================================
+   SUBMIT FLOW  (New mission/list  ·  or link to existing quest)
+   ============================================================ */
+const submitModal = document.getElementById("submitModal");
+const smTitle      = document.getElementById("smTitle");
+const smNew        = document.getElementById("smNew");
+const smExisting   = document.getElementById("smExisting");
+const smNameWrap   = document.getElementById("smNameWrap");
+const smName       = document.getElementById("smName");
+const smLinkedNote = document.getElementById("smLinkedNote");
+const smPickWrap   = document.getElementById("smPickWrap");
+const smPick       = document.getElementById("smPick");
+
+capSubmit.addEventListener("click", ()=>{
+  if(!staged.length) return;
+  // "Link to quest" dropdown is a shortcut: commit straight to that quest.
+  if(linkQuestSel.value){
+    const q=state.quests.find(x=>x.id===linkQuestSel.value);
+    const n=staged.length;
+    commitStaged(linkQuestSel.value);
+    toast(`${n} added to ${q?q.name:"quest"}`);
+    resetCapture(); renderQuests();
+    return;
+  }
+  openSubmitModal();
+});
+
+function openSubmitModal(){
+  const multiple = staged.length>1;
+  smTitle.textContent = multiple ? "Save this mission list" : "Save this mission";
+  smNew.textContent   = multiple ? "New mission list" : "New mission";
+  smNameWrap.classList.remove("show"); smPickWrap.classList.remove("show");
+  smName.value=""; smLinkedNote.textContent="";
+  submitModal.classList.add("show");
+  setSmFocus(smNew);
+}
+function closeSubmitModal(){ submitModal.classList.remove("show"); }
+function setSmFocus(btn){ [smNew,smExisting].forEach(b=>b.classList.remove("focus")); btn.classList.add("focus"); setTimeout(()=>btn.focus(),30); }
+
+function chooseNew(){
+  const multiple = staged.length>1;
+  if(multiple){
+    smPickWrap.classList.remove("show");
+    smNameWrap.classList.add("show");
+    setTimeout(()=>smName.focus(),40);
+  } else {
+    commitStaged(null);            // single mission, unassigned
+    toast("Mission added");
+    finishSubmit();
+  }
+}
+smNew.addEventListener("click", chooseNew);
+
+smName.addEventListener("keydown", e=>{
+  if(e.key!=="Enter") return;
+  e.preventDefault();
+  const name=smName.value.trim(); if(!name){ smName.focus(); return; }
+  const bId=uid(), lId=uid();
+  const q={ id:uid(), name, color:"#234BFF", category:"other", summary:"", image:"", createdAt:Date.now(),
+            boards:[{id:bId, name:"Board", color:"#234BFF", lists:[{id:lId,name:"Tasks",x:0,y:0,color:"#234BFF"}], notes:[], links:[]}], activeBoard:bId };
+  state.quests.unshift(q);
+  commitStaged(q.id);
+  toast("List created");
+  finishSubmit();
+});
+
+document.getElementById("smCustomize").addEventListener("click", ()=>{
+  const name=smName.value.trim();
+  const queued=staged.slice();
+  closeSubmitModal();
+  openQuestModal({ name, queued });
+});
+
+smExisting.addEventListener("click", ()=>{
+  if(!state.quests.length){ toast("No quests yet — pick New instead"); return; }
+  smNameWrap.classList.remove("show");
+  smPick.innerHTML = '<option value="">Choose a quest…</option>' +
+    state.quests.map(q=>`<option value="${q.id}">${escapeHtml(q.name)}</option>`).join("");
+  smPickWrap.classList.add("show");
+  setTimeout(()=>smPick.focus(),40);
+});
+smPick.addEventListener("change", ()=>{
+  if(!smPick.value) return;
+  const q=state.quests.find(x=>x.id===smPick.value);
+  commitStaged(smPick.value);
+  toast(`Added to ${q?q.name:"quest"}`);
+  finishSubmit();
+});
+
+function finishSubmit(){ closeSubmitModal(); resetCapture(); renderQuests(); }
+
+submitModal.addEventListener("click", e=>{ if(e.target===submitModal) closeSubmitModal(); });
+submitModal.addEventListener("keydown", e=>{
+  if(e.key==="Escape"){ closeSubmitModal(); return; }
+  if(e.key==="ArrowDown"||e.key==="ArrowUp"){ e.preventDefault(); setSmFocus(document.activeElement===smNew? smExisting:smNew); return; }
+  if(e.key==="Enter"){
+    if(e.target===smName) return;                         // name input handles its own enter
+    if(smPickWrap.classList.contains("show")) return;     // let the select choose
+    e.preventDefault();
+    if(document.activeElement===smExisting) smExisting.click();
+    else chooseNew();                                     // Enter defaults to New
+  }
+});
+
+/* ============================================================
+   STUB RENDERERS (Quests / Missions) — fleshed out in later passes
+   ============================================================ */
+/* ---- Quest taxonomy + palette (shared by wizard + cards) ---- */
+const CATEGORIES = [
+  {id:"mind",   label:"Mind",   glyph:"🧠"},
+  {id:"body",   label:"Body",   glyph:"💪"},
+  {id:"soul",   label:"Soul",   glyph:"✨"},
+  {id:"wealth", label:"Wealth", glyph:"💰"},
+  {id:"other",  label:"Other",  glyph:"◆"},
+];
+const PALETTE = ["#234BFF","#8C73E8","#E255A1","#E5484D","#F2851E","#F2C200","#2FA84F","#14B8C4","#6B4F3A","#141210"];
+let questsShown = 10;
+function catGlyph(id){ const c=CATEGORIES.find(x=>x.id===id); return c?c.glyph:"◆"; }
+
+function renderQuests(){
+  const grid = document.getElementById("questsGrid");
+  const more = document.getElementById("questsMore");
+  if(!state.quests.length){
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1">No quests yet. Hit <b>+ New Quest</b>, or capture missions and choose “Create new quest”.</div>`;
+    more.innerHTML=""; return;
+  }
+  grid.innerHTML = state.quests.slice(0, questsShown).map(q=>{
+    const ms = state.missions.filter(m=>m.questId===q.id);
+    const done = ms.filter(m=>m.done).length;
+    const pct = ms.length? Math.round(done/ms.length*100) : 0;
+    const cover = q.image
+      ? `<div class="cover" style="background-image:url('${q.image}')"><span class="cat-tag">${escapeHtml(q.category)}</span></div>`
+      : `<div class="cover solid" style="background:${q.color}"><span class="glyph">${catGlyph(q.category)}</span><span class="cat-tag">${escapeHtml(q.category)}</span></div>`;
+    return `<div class="card" data-id="${q.id}" tabindex="0" role="button" aria-label="${escapeHtml(q.name)}">
+      ${cover}
+      <div class="card-body">
+        <p class="qname">${escapeHtml(q.name)}</p>
+        <span class="qcat">${ms.length} missions · ${done} done</span>
+        <div class="qmeta">
+          <div class="bar"><i style="width:${pct}%;background:${q.color}"></i></div>
+          <span class="pct">${pct}%</span>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+
+  more.innerHTML = state.quests.length>questsShown
+    ? `<button class="btn ghost" id="viewMoreBtn">View more (${state.quests.length-questsShown}) ↓</button>`
+    : (questsShown>10 ? `<button class="btn ghost" id="viewLessBtn">Show less ↑</button>` : "");
+  const vm=document.getElementById("viewMoreBtn"); if(vm) vm.onclick=()=>{ questsShown+=10; renderQuests(); };
+  const vl=document.getElementById("viewLessBtn"); if(vl) vl.onclick=()=>{ questsShown=10; renderQuests(); };
+
+  grid.querySelectorAll(".card").forEach(c=>{
+    const open=()=>{ if(typeof openQuestBoard==="function") openQuestBoard(c.dataset.id); };
+    c.addEventListener("click", open);
+    c.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); open(); } });
+  });
+}
+
+let missionFilter = { mode:"all", dateField:"created", questId:null };
+
+function inPeriod(ts, period){
+  const d=new Date(ts), now=new Date();
+  const sod=x=>{ const y=new Date(x); y.setHours(0,0,0,0); return y; };
+  const today0=sod(now);
+  if(period==="today")     return sod(d).getTime()===today0.getTime();
+  if(period==="yesterday"){ const y=new Date(today0); y.setDate(y.getDate()-1); return sod(d).getTime()===y.getTime(); }
+  if(period==="week"){ const ws=new Date(today0); ws.setDate(today0.getDate()-today0.getDay()); const we=new Date(ws); we.setDate(ws.getDate()+7); return d>=ws && d<we; }
+  if(period==="month")     return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
+  if(period==="year")      return d.getFullYear()===now.getFullYear();
+  return true;
+}
+function filteredMissions(){
+  let arr=[...state.missions];
+  const f=missionFilter;
+  if(["today","yesterday","week","month","year"].includes(f.mode)){
+    const field=f.dateField==="modified"?"modifiedAt":"createdAt";
+    arr=arr.filter(m=>inPeriod(m[field]||m.createdAt, f.mode));
+  } else if(f.mode==="priority"){ arr=arr.filter(m=>m.priority); }
+  else if(f.mode==="quest"){ arr=arr.filter(m=>m.questId===f.questId); }
+  arr.sort((a,b)=> (a.done-b.done) || (a.due-b.due));
+  return arr;
+}
+function dueGroupOf(ts, now){
+  if(ts<now) return "Overdue";
+  const sod=x=>{const y=new Date(x);y.setHours(0,0,0,0);return y;};
+  const diff=Math.round((sod(ts)-sod(now))/86400000);
+  if(diff===0) return "Today";
+  if(diff===1) return "Tomorrow";
+  if(diff<=7) return "This week";
+  return "Later";
+}
+function missionRowHTML(m){
+  const q=state.quests.find(x=>x.id===m.questId);
+  return `<div class="mrow ${m.done?'done':''}" data-id="${m.id}">
+    <button class="chk ${m.done?'on':''}" aria-label="Toggle done">${m.done?'✓':''}</button>
+    <span class="qdot" style="background:${q?q.color:'var(--bg-2)'}"></span>
+    <span class="mtitle">${escapeHtml(m.title)}</span>
+    <span class="mtags">
+      ${m.priority?'<span class="prio" title="High priority">★</span>':''}
+      ${q?`<span class="qname-chip">${escapeHtml(q.name)}</span>`:''}
+      <span class="mdue">${dueLabel(m.due)}</span>
+      <button class="mmore" aria-label="More actions">⋯</button>
+    </span>
+  </div>`;
+}
+function renderMissions(){
+  // quest filter dropdown
+  const qf=document.getElementById("questFilter");
+  qf.innerHTML='<option value="">By quest…</option>'+state.quests.map(q=>`<option value="${q.id}">${escapeHtml(q.name)}</option>`).join("");
+  qf.value = (missionFilter.mode==="quest" && missionFilter.questId) ? missionFilter.questId : "";
+
+  // chips + date-field seg state
+  const dateModes=["today","yesterday","week","month","year"];
+  document.querySelectorAll("#mFilterRow .fchip").forEach(c=> c.setAttribute("aria-pressed", String(c.dataset.mode===missionFilter.mode)));
+  document.getElementById("dateFieldWrap").style.display = dateModes.includes(missionFilter.mode)?"flex":"none";
+  document.querySelectorAll("#dateFieldWrap .seg button").forEach(b=> b.setAttribute("aria-pressed", String(b.dataset.field===missionFilter.dateField)));
+
+  const list=document.getElementById("missionsList");
+  const arr=filteredMissions();
+  document.getElementById("mCount").textContent = arr.length + (arr.length===1?" mission":" missions");
+
+  if(!state.missions.length){ list.innerHTML=`<div class="empty">No missions yet. Capture some from the home screen.</div>`; return; }
+  if(!arr.length){ list.innerHTML=`<div class="empty">Nothing matches this filter.</div>`; return; }
+
+  if(missionFilter.mode==="due"){
+    const now=Date.now();
+    const order=["Overdue","Today","Tomorrow","This week","Later"];
+    const groups={}; order.forEach(g=>groups[g]=[]);
+    arr.forEach(m=> groups[dueGroupOf(m.due, now)].push(m));
+    list.innerHTML = order.filter(g=>groups[g].length)
+      .map(g=>`<div class="mgroup-head">${g} · ${groups[g].length}</div>`+groups[g].map(missionRowHTML).join("")).join("");
+  } else {
+    list.innerHTML = arr.map(missionRowHTML).join("");
+  }
+
+  list.querySelectorAll(".mrow").forEach(row=>{
+    row.querySelector(".chk").addEventListener("click", ()=>{
+      const m=state.missions.find(x=>x.id===row.dataset.id);
+      m.done=!m.done; m.modifiedAt=Date.now(); save(); renderMissions(); renderQuests();
+    });
+    row.addEventListener("contextmenu", e=>{ e.preventDefault(); openCtxMenu(row.dataset.id, e.clientX, e.clientY); });
+    row.querySelector(".mmore").addEventListener("click", e=>{
+      e.stopPropagation();
+      const r=e.currentTarget.getBoundingClientRect();
+      openCtxMenu(row.dataset.id, r.left-130, r.bottom+4);
+    });
+  });
+}
+
+/* filter controls */
+document.getElementById("mFilterRow").addEventListener("click", e=>{
+  const c=e.target.closest(".fchip"); if(!c) return;
+  missionFilter.mode=c.dataset.mode;
+  if(missionFilter.mode!=="quest") missionFilter.questId=null;
+  renderMissions();
+});
+document.getElementById("questFilter").addEventListener("change", e=>{
+  if(e.target.value){ missionFilter.mode="quest"; missionFilter.questId=e.target.value; }
+  else { missionFilter.mode="all"; missionFilter.questId=null; }
+  renderMissions();
+});
+document.getElementById("dateFieldWrap").addEventListener("click", e=>{
+  const b=e.target.closest("button[data-field]"); if(!b) return;
+  missionFilter.dateField=b.dataset.field; renderMissions();
+});
+
+/* ============================================================
+   PASS 2: QUEST CREATION WIZARD
+   ============================================================ */
+const questModal = document.getElementById("questModal");
+const wizPanels  = [...questModal.querySelectorAll(".wiz-panel")];
+const wizSteps   = wizPanels.length;
+let wizStep = 0;
+let wizData = { name:"", color:PALETTE[0], category:"", summary:"", image:"" };
+
+const swatchWrap = document.getElementById("qSwatches");
+swatchWrap.innerHTML = PALETTE.map((c,i)=>
+  `<button class="swatch" role="radio" data-color="${c}" aria-checked="${i===0}" tabindex="${i===0?0:-1}" style="background:${c}" aria-label="color ${i+1}"></button>`
+).join("");
+const catWrap = document.getElementById("qCats");
+catWrap.innerHTML = CATEGORIES.map((c,i)=>
+  `<button class="cat-opt" role="radio" data-cat="${c.id}" aria-checked="false" tabindex="${i===0?0:-1}">${c.glyph} ${c.label}</button>`
+).join("");
+
+function radioNav(wrap, onSelect){
+  wrap.addEventListener("click", e=>{ const o=e.target.closest("[role=radio]"); if(o) setRadio(wrap,o,onSelect); });
+  wrap.addEventListener("keydown", e=>{
+    const opts=[...wrap.querySelectorAll("[role=radio]")];
+    let i=opts.findIndex(o=>o.getAttribute("aria-checked")==="true"); if(i<0)i=0;
+    if(["ArrowRight","ArrowDown"].includes(e.key)){ e.preventDefault(); const n=opts[(i+1)%opts.length]; setRadio(wrap,n,onSelect); n.focus(); }
+    else if(["ArrowLeft","ArrowUp"].includes(e.key)){ e.preventDefault(); const n=opts[(i-1+opts.length)%opts.length]; setRadio(wrap,n,onSelect); n.focus(); }
+  });
+}
+function setRadio(wrap,opt,onSelect){
+  wrap.querySelectorAll("[role=radio]").forEach(o=>{ o.setAttribute("aria-checked","false"); o.tabIndex=-1; });
+  opt.setAttribute("aria-checked","true"); opt.tabIndex=0; if(onSelect) onSelect(opt);
+}
+radioNav(swatchWrap, o=> wizData.color=o.dataset.color);
+radioNav(catWrap, o=>{ wizData.category=o.dataset.cat; document.getElementById("errCat").classList.remove("show"); });
+
+/* image upload -> downscaled data URL */
+const imgDrop=document.getElementById("qImgDrop");
+const imgFile=document.getElementById("qImgFile");
+const imgPrev=document.getElementById("qImgPrev");
+const imgActions=document.getElementById("qImgActions");
+imgDrop.addEventListener("click", ()=> imgFile.click());
+imgFile.addEventListener("change", async ()=>{
+  const f=imgFile.files[0]; if(!f) return;
+  try{
+    wizData.image = await fileToDataURL(f, 460);
+    imgPrev.style.backgroundImage=`url('${wizData.image}')`;
+    imgPrev.classList.add("show"); imgActions.classList.add("show");
+    imgDrop.textContent="Change image";
+  }catch(e){ toast("Couldn't read that image"); }
+});
+document.getElementById("qImgRemove").addEventListener("click", ()=>{
+  wizData.image=""; imgFile.value="";
+  imgPrev.classList.remove("show"); imgActions.classList.remove("show");
+  imgDrop.textContent="Click to upload an image";
+});
+function fileToDataURL(file, max){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>{ const img=new Image();
+      img.onload=()=>{
+        let w=img.width,h=img.height;
+        if(w>h && w>max){ h=Math.round(h*max/w); w=max; }
+        else if(h>=w && h>max){ w=Math.round(w*max/h); h=max; }
+        const c=document.createElement("canvas"); c.width=w; c.height=h;
+        c.getContext("2d").drawImage(img,0,0,w,h);
+        res(c.toDataURL("image/jpeg",0.82));
+      };
+      img.onerror=rej; img.src=r.result;
+    };
+    r.onerror=rej; r.readAsDataURL(file);
+  });
+}
+
+let editingQuestId = null;
+let wizQueued = [];   // staged missions to attach when this wizard creates a quest
+
+function openQuestModal(opts){
+  opts = opts || {};
+  editingQuestId = opts.questId || null;
+  wizQueued = opts.queued || [];
+  wizStep=0;
+  const ex = editingQuestId ? state.quests.find(x=>x.id===editingQuestId) : null;
+  wizData = ex
+    ? { name:ex.name, color:ex.color, category:ex.category, summary:ex.summary||"", image:ex.image||"" }
+    : { name:opts.name||"", color:PALETTE[0], category:"", summary:"", image:"" };
+
+  document.getElementById("qName").value = wizData.name;
+  document.getElementById("qSummary").value = wizData.summary;
+  setRadio(swatchWrap, swatchWrap.querySelector(`[data-color="${wizData.color}"]`)||swatchWrap.querySelector("[role=radio]"), o=>wizData.color=o.dataset.color);
+  catWrap.querySelectorAll("[role=radio]").forEach((o,i)=>{ const on=o.dataset.cat===wizData.category; o.setAttribute("aria-checked",String(on)); o.tabIndex = on ? 0 : (i===0 ? 0 : -1); });
+
+  const prev=document.getElementById("qImgPrev"), acts=document.getElementById("qImgActions"), drop=document.getElementById("qImgDrop");
+  if(wizData.image){ prev.style.backgroundImage=`url('${wizData.image}')`; prev.classList.add("show"); acts.classList.add("show"); drop.textContent="Change image"; }
+  else { prev.classList.remove("show"); acts.classList.remove("show"); drop.textContent="Click to upload an image"; document.getElementById("qImgFile").value=""; }
+
+  document.querySelectorAll(".wiz-err").forEach(e=>e.classList.remove("show"));
+  showWizStep(0);
+  questModal.classList.add("show");
+  setTimeout(()=>document.getElementById("qName").focus(),60);
+}
+function closeQuestModal(){ questModal.classList.remove("show"); }
+
+function showWizStep(n){
+  wizStep=n;
+  wizPanels.forEach(p=> p.classList.toggle("active", +p.dataset.step===n));
+  document.getElementById("wizStepLabel").textContent=`${editingQuestId?"Edit · ":""}Step ${n+1} / ${wizSteps}`;
+  document.getElementById("wizProgress").innerHTML = wizPanels.map((_,i)=>`<span class="pdot ${i<=n?'on':''}"></span>`).join("");
+  document.getElementById("wizBack").style.visibility = n===0?"hidden":"visible";
+  document.getElementById("wizNext").textContent = n===wizSteps-1 ? (editingQuestId?"✓ Save changes":"✓ Add quest") : "Next →";
+  if(n===5) renderReview();
+  setTimeout(()=>{
+    if(n===0) document.getElementById("qName").focus();
+    else if(n===1) swatchWrap.querySelector('[aria-checked="true"]').focus();
+    else if(n===2) (catWrap.querySelector('[aria-checked="true"]')||catWrap.querySelector("[role=radio]")).focus();
+    else if(n===3) document.getElementById("qSummary").focus();
+  },50);
+}
+
+function wizNext(){
+  if(wizStep===0){ wizData.name=document.getElementById("qName").value.trim(); if(!wizData.name){ document.getElementById("errName").classList.add("show"); return; } }
+  if(wizStep===2){ if(!wizData.category){ document.getElementById("errCat").classList.add("show"); return; } }
+  if(wizStep===3){ wizData.summary=document.getElementById("qSummary").value.trim(); }
+  if(wizStep<wizSteps-1){ showWizStep(wizStep+1); } else { createQuestFromWizard(); }
+}
+function wizBack(){ if(wizStep>0) showWizStep(wizStep-1); }
+
+function renderReview(){
+  const cat=CATEGORIES.find(c=>c.id===wizData.category);
+  const cover = wizData.image
+    ? `<div class="review-cover" style="background-image:url('${wizData.image}')"></div>`
+    : `<div class="review-cover" style="background:${wizData.color}"><span style="font-size:2.6rem">${cat?cat.glyph:"◆"}</span></div>`;
+  document.getElementById("qReview").innerHTML = cover + `<div class="review-list">
+    <div class="ri"><span class="rk">Name</span><span class="rv">${escapeHtml(wizData.name)}</span></div>
+    <div class="ri"><span class="rk">Category</span><span class="rv">${cat?cat.label:"—"}</span></div>
+    <div class="ri"><span class="rk">Color</span><span class="rv"><span style="display:inline-block;width:1rem;height:1rem;border:2px solid var(--ink);vertical-align:-2px;background:${wizData.color}"></span> ${wizData.color}</span></div>
+    <div class="ri"><span class="rk">Summary</span><span class="rv">${wizData.summary?escapeHtml(wizData.summary):"—"}</span></div>
+  </div>`;
+}
+
+function createQuestFromWizard(){
+  if(editingQuestId){
+    const q=state.quests.find(x=>x.id===editingQuestId);
+    if(q) Object.assign(q, { name:wizData.name, color:wizData.color, category:wizData.category, summary:wizData.summary, image:wizData.image });
+    save(); closeQuestModal(); renderQuests();
+    if(boardQuestId===editingQuestId) renderQuestBoard();
+    toast("Quest updated"); editingQuestId=null; return;
+  }
+  const bId=uid(), lId=uid();
+  const q={ id:uid(), name:wizData.name, color:wizData.color, category:wizData.category,
+            summary:wizData.summary, image:wizData.image, createdAt:Date.now(),
+            boards:[{id:bId, name:"Board", color:wizData.color, lists:[{id:lId,name:"Tasks",x:0,y:0,color:wizData.color}], notes:[], links:[]}], activeBoard:bId };
+  state.quests.unshift(q);
+  if(wizQueued.length){
+    wizQueued.forEach(m=> state.missions.push({
+      id:uid(), title:m.title, questId:q.id, listId:lId, due:m.due,
+      createdAt:Date.now(), modifiedAt:Date.now(), done:!!m.done,
+      priority:false, location:"", amount:0, color:q.color }));
+    wizQueued=[];
+    if(typeof resetCapture==="function") resetCapture();
+  }
+  save(); closeQuestModal(); questsShown=10; renderQuests();
+  toast("Quest created");
+}
+
+document.getElementById("newQuestBtn").addEventListener("click", ()=> openQuestModal());
+document.getElementById("wizClose").addEventListener("click", closeQuestModal);
+document.getElementById("wizNext").addEventListener("click", wizNext);
+document.getElementById("wizBack").addEventListener("click", wizBack);
+questModal.addEventListener("click", e=>{ if(e.target===questModal) closeQuestModal(); });
+document.getElementById("qName").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); e.stopPropagation(); wizNext(); } });
+document.getElementById("qSummary").addEventListener("keydown", e=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); e.stopPropagation(); wizNext(); } });
+questModal.addEventListener("keydown", e=>{
+  if(e.key==="Escape"){ closeQuestModal(); return; }
+  if(e.key==="Enter" && [1,2,4,5].includes(wizStep)){
+    if(e.target.closest("input,textarea")) return;
+    e.preventDefault(); wizNext();
+  }
+});
+
+/* ============================================================
+   QUEST BOARD (full-page · lists · drag · zoom)
+   ============================================================ */
+let boardQuestId=null, boardZoom=1, boardDue="hour", draggedCardId=null, listMenuId=null;
+let boardCanvasW=800, boardCanvasH=600, moveDrag=null, resizing=null, linkFrom=null;
+const GRID=28;
+function snap(v){ return Math.round(v/GRID)*GRID; }
+
+function openQuestBoard(id){
+  const q=state.quests.find(x=>x.id===id); if(!q) return;
+  boardQuestId=id;
+  switchView("quest");
+  renderQuestBoard();
+  setTimeout(()=>{ const a=document.querySelector(".qb-card-add"); if(a) a.focus(); },60);
+}
+
+function renderQuestBoard(){
+  const q=curQuest(); if(!q) return;
+  const B=activeBoard(q); if(!B) return;
+  B.notes=B.notes||[]; B.links=B.links||[]; B.lists=B.lists||[];
+  const titleEl=document.getElementById("qbTitle");
+  if(document.activeElement!==titleEl) titleEl.value=q.name;
+  const sumEl=document.getElementById("qbSummary");
+  if(document.activeElement!==sumEl){ sumEl.value=q.summary||""; autoGrow(sumEl); }
+  document.getElementById("qbColors").innerHTML=PALETTE.map(c=>
+    `<button class="qb-swatch" role="radio" data-color="${c}" aria-checked="${c===q.color}" tabindex="${c===q.color?0:-1}" style="background:${c}" aria-label="color"></button>`).join("");
+  const ms=state.missions.filter(m=>m.questId===q.id);
+  const done=ms.filter(m=>m.done).length;
+  const pct=ms.length?Math.round(done/ms.length*100):0;
+  const pctEl=document.getElementById("qbPct"); pctEl.textContent=pct+"%"; pctEl.style.color=q.color;
+  document.getElementById("qbPmeta").textContent=`${done} / ${ms.length} done`;
+  renderTabs(q);
+  const board=document.getElementById("qbBoard");
+  board.style.setProperty("--q-accent", q.color);
+  board.innerHTML = `<svg class="qb-arrows" id="qbArrows"></svg>` + B.lists.map(l=>listHTML(B,l)).join("") + B.notes.map(noteHTML).join("");
+  let mx=600, my=420;
+  B.lists.forEach(l=>{ mx=Math.max(mx,(l.x||0)+(l.w||290)+10); my=Math.max(my,(l.y||0)+(l.h||460)); });
+  B.notes.forEach(n=>{ mx=Math.max(mx,(n.x||0)+(n.w||240)+10); my=Math.max(my,(n.y||0)+(n.h||160)); });
+  boardCanvasW=mx+340; boardCanvasH=my+120;
+  wireBoard(q);
+  applyZoom();
+  requestAnimationFrame(drawArrows);
+}
+function isListComplete(listId){
+  const ms=state.missions.filter(m=>m.listId===listId);
+  return ms.length>0 && ms.every(m=>m.done);
+}
+function isLocked(B, l){ return l.lockedUntil && B.lists.some(x=>x.id===l.lockedUntil) && !isListComplete(l.lockedUntil); }
+function lockName(B, l){ const p=B.lists.find(x=>x.id===l.lockedUntil); return p?p.name:""; }
+
+function listHTML(B,l){
+  const cards=state.missions.filter(m=>m.listId===l.id);
+  const inner = cards.length ? cards.map(cardHTML).join("") : `<div class="qb-empty">Empty — add a mission below</div>`;
+  const color=l.color||B.color;
+  const locked=isLocked(B,l);
+  const w=l.w||290;
+  const hStyle = l.h ? `height:${l.h}px;` : '';
+  return `<div class="qb-list ${locked?'locked':''} ${linkFrom===l.id?'linking':''}" data-list="${l.id}" style="left:${l.x||0}px; top:${l.y||0}px; width:${w}px; ${hStyle} --list-accent:${color}">
+    <div class="qb-list-head">
+      <span class="qb-list-name" data-list="${l.id}" title="Drag to move · double-click to rename">${escapeHtml(l.name)}</span>
+      <button class="qb-connect" data-conn="${l.id}" title="Draw arrow to another item" aria-label="Connect">⟿</button>
+      <button class="qb-list-more" data-list="${l.id}" aria-label="List options">⋯</button>
+    </div>
+    <div class="qb-cards" data-list="${l.id}">${inner}</div>
+    <input class="qb-card-add" data-list="${l.id}" placeholder="Type a mission, hit enter" aria-label="Add mission" ${locked?'disabled':''}>
+    ${locked? `<div class="qb-lock"><span>🔒 Locked until<br><b>${escapeHtml(lockName(B,l))}</b><br>is complete</span></div>`:''}
+    <span class="qb-resize" data-list="${l.id}" aria-hidden="true"></span>
+  </div>`;
+}
+function noteHTML(n){
+  return `<div class="qb-note ${linkFrom===n.id?'linking':''}" data-note="${n.id}" style="left:${n.x||0}px; top:${n.y||0}px; width:${n.w||240}px; height:${n.h||160}px; --note-accent:${n.color||'#F2C200'}">
+    <div class="qb-note-head">
+      <span class="qb-note-grip">≡ Note</span>
+      <button class="qb-connect" data-conn="${n.id}" title="Draw arrow to another item" aria-label="Connect">⟿</button>
+      <button class="qb-note-more" data-note="${n.id}" aria-label="Note options">⋯</button>
+    </div>
+    <textarea class="qb-note-text" data-note="${n.id}" placeholder="Quick note…">${escapeHtml(n.text||'')}</textarea>
+    <span class="qb-resize" data-note="${n.id}" aria-hidden="true"></span>
+  </div>`;
+}
+function cardHTML(m){
+  return `<div class="qb-card ${m.done?'done':''}" data-id="${m.id}" draggable="true">
+    <button class="qb-card-chk ${m.done?'on':''}" aria-label="Toggle done">${m.done?'✓':''}</button>
+    <span class="qb-card-title">${escapeHtml(m.title)}</span>
+    <span class="qb-card-due">${dueLabel(m.due)}</span>
+  </div>`;
+}
+function wireBoard(q){
+  const B=activeBoard(q);
+  const board=document.getElementById("qbBoard");
+  board.querySelectorAll(".qb-list-name").forEach(span=>{
+    span.addEventListener("dblclick", e=>{ e.stopPropagation(); startRename(span); });
+  });
+  board.querySelectorAll(".qb-list-more").forEach(b=> b.addEventListener("click", e=>{
+    e.stopPropagation(); const r=b.getBoundingClientRect(); openListMenu(b.dataset.list, r.right-180, r.bottom+4);
+  }));
+  board.querySelectorAll(".qb-card-add").forEach(inp=> inp.addEventListener("keydown", e=>{
+    if(e.key!=="Enter") return; e.preventDefault();
+    const v=inp.value.trim(); if(!v) return;
+    const lid=inp.dataset.list;
+    addMissionToList(q.id, lid, v);
+    renderQuestBoard();
+    const again=document.querySelector(`.qb-card-add[data-list="${lid}"]`); if(again) again.focus();
+  }));
+  board.querySelectorAll(".qb-card").forEach(card=>{
+    card.querySelector(".qb-card-chk").addEventListener("click", e=>{
+      e.stopPropagation();
+      const m=state.missions.find(x=>x.id===card.dataset.id);
+      m.done=!m.done; m.modifiedAt=Date.now(); save(); renderQuestBoard(); renderQuests();
+    });
+    card.addEventListener("click", ()=> openMissionEdit(card.dataset.id));
+    card.addEventListener("dragstart", e=>{ draggedCardId=card.dataset.id; card.classList.add("dragging"); e.dataTransfer.effectAllowed="move"; try{e.dataTransfer.setData("text/plain",card.dataset.id);}catch(_){} });
+    card.addEventListener("dragend", ()=>{ draggedCardId=null; card.classList.remove("dragging"); });
+  });
+  board.querySelectorAll(".qb-cards").forEach(zone=>{
+    zone.addEventListener("dragover", e=>{ e.preventDefault(); zone.classList.add("drop"); });
+    zone.addEventListener("dragleave", ()=> zone.classList.remove("drop"));
+    zone.addEventListener("drop", e=>{ e.preventDefault(); zone.classList.remove("drop"); if(draggedCardId) moveCard(draggedCardId, zone.dataset.list, e); });
+  });
+  board.querySelectorAll(".qb-list-head").forEach(h=>{
+    h.addEventListener("mousedown", e=>{
+      if(e.target.tagName==="INPUT" || e.target.closest(".qb-list-more") || e.target.closest(".qb-connect")) return;
+      const lst=B.lists.find(l=>l.id===h.closest(".qb-list").dataset.list);
+      if(lst) startMove(e, h.closest(".qb-list"), lst);
+    });
+  });
+  // unified connect ports (lists + notes)
+  board.querySelectorAll(".qb-connect").forEach(btn=> btn.addEventListener("click", e=>{
+    e.stopPropagation();
+    const id=btn.dataset.conn;
+    if(!linkFrom){ linkFrom=id; renderQuestBoard(); toast("Now click ⟿ on the target"); }
+    else if(linkFrom===id){ linkFrom=null; renderQuestBoard(); }
+    else { addLink(linkFrom, id); linkFrom=null; renderQuestBoard(); }
+  }));
+  board.querySelectorAll(".qb-resize").forEach(h=> h.addEventListener("mousedown", e=>{ e.stopPropagation(); e.preventDefault(); startResize(e, h); }));
+  // notes
+  board.querySelectorAll(".qb-note-head").forEach(h=>{
+    h.addEventListener("mousedown", e=>{
+      if(e.target.closest(".qb-note-more") || e.target.closest(".qb-connect")) return;
+      const note=B.notes.find(n=>n.id===h.closest(".qb-note").dataset.note);
+      if(note) startMove(e, h.closest(".qb-note"), note);
+    });
+  });
+  board.querySelectorAll(".qb-note-text").forEach(t=> t.addEventListener("input", ()=>{
+    const n=B.notes.find(x=>x.id===t.dataset.note); if(n){ n.text=t.value; save(); }
+  }));
+  board.querySelectorAll(".qb-note-more").forEach(b=> b.addEventListener("click", e=>{
+    e.stopPropagation(); const r=b.getBoundingClientRect(); openNoteMenu(b.dataset.note, r.right-180, r.bottom+4);
+  }));
+}
+function startRename(span){
+  const B=curBoard(); if(!B) return;
+  const l=B.lists.find(x=>x.id===span.dataset.list); if(!l) return;
+  const inp=document.createElement("input");
+  inp.className="qb-list-rename"; inp.value=l.name;
+  span.replaceWith(inp); inp.focus(); inp.select();
+  const commit=()=>{ l.name=inp.value.trim()||"List"; save(); renderQuestBoard(); renderQuests(); };
+  inp.addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); inp.blur(); } else if(e.key==="Escape"){ renderQuestBoard(); } });
+  inp.addEventListener("blur", commit);
+}
+function addMissionToList(questId, listId, title){
+  const q=state.quests.find(x=>x.id===questId);
+  state.missions.push({ id:uid(), title, questId, listId, due:dueFromPreset(boardDue),
+    createdAt:Date.now(), modifiedAt:Date.now(), done:false, priority:false, location:"", amount:0, color:q?q.color:"#234BFF" });
+  save(); renderQuests();
+}
+function addList(questId){
+  const q=state.quests.find(x=>x.id===questId); if(!q) return;
+  const B=activeBoard(q); if(!B) return;
+  let maxRight=0; B.lists.forEach(l=> maxRight=Math.max(maxRight,(l.x||0)+308));
+  const nl={id:uid(), name:"New list", color:B.color||q.color, x:snap(maxRight), y:0};
+  B.lists.push(nl);
+  save(); renderQuestBoard();
+  setTimeout(()=>{ const span=document.querySelector(`.qb-list-name[data-list="${nl.id}"]`); if(span) startRename(span); },40);
+}
+function getDragAfterElement(zone, y){
+  const els=[...zone.querySelectorAll(".qb-card:not(.dragging)")];
+  let closest={offset:-Infinity, element:null};
+  els.forEach(child=>{ const box=child.getBoundingClientRect(); const offset=y-box.top-box.height/2; if(offset<0 && offset>closest.offset){ closest={offset, element:child}; } });
+  return closest.element;
+}
+function moveCard(id, targetListId, e){
+  const m=state.missions.find(x=>x.id===id); if(!m) return;
+  m.listId=targetListId; m.questId=boardQuestId; m.modifiedAt=Date.now();
+  const after=getDragAfterElement(e.currentTarget, e.clientY);
+  const arr=state.missions; const idx=arr.indexOf(m); arr.splice(idx,1);
+  if(after){ const ti=arr.findIndex(x=>x.id===after.dataset.id); arr.splice(ti<0?arr.length:ti,0,m); }
+  else arr.push(m);
+  save(); renderQuestBoard(); renderQuests();
+}
+
+/* generic move (lists + notes) -> snap to grid */
+function startMove(e, el, obj){
+  moveDrag={ el, obj, sx:e.clientX, sy:e.clientY, ox:obj.x||0, oy:obj.y||0, nx:obj.x||0, ny:obj.y||0 };
+  el.classList.add("dragging-list");
+  document.addEventListener("mousemove", onMove);
+  document.addEventListener("mouseup", endMove);
+  e.preventDefault();
+}
+function onMove(e){
+  if(!moveDrag) return;
+  let nx=Math.max(0, moveDrag.ox+(e.clientX-moveDrag.sx)/boardZoom);
+  let ny=Math.max(0, moveDrag.oy+(e.clientY-moveDrag.sy)/boardZoom);
+  moveDrag.nx=nx; moveDrag.ny=ny;
+  moveDrag.el.style.left=nx+"px"; moveDrag.el.style.top=ny+"px";
+  drawArrows();
+}
+function endMove(){
+  if(!moveDrag) return;
+  document.removeEventListener("mousemove", onMove);
+  document.removeEventListener("mouseup", endMove);
+  const nx=snap(moveDrag.nx), ny=snap(moveDrag.ny);
+  const moved = nx!==moveDrag.ox || ny!==moveDrag.oy;
+  moveDrag.obj.x=nx; moveDrag.obj.y=ny;
+  moveDrag.el.classList.remove("dragging-list");
+  moveDrag=null;
+  if(moved){ save(); renderQuestBoard(); }
+}
+
+/* resize (lists + notes) */
+function startResize(e, h){
+  const B=curBoard(); if(!B) return;
+  let obj, el, type;
+  if(h.dataset.list){ type="list"; obj=B.lists.find(l=>l.id===h.dataset.list); el=h.closest(".qb-list"); }
+  else { type="note"; obj=B.notes.find(n=>n.id===h.dataset.note); el=h.closest(".qb-note"); }
+  if(!obj) return;
+  resizing={ obj, el, type, sx:e.clientX, sy:e.clientY, ow:el.offsetWidth, oh:el.offsetHeight, nw:el.offsetWidth, nh:el.offsetHeight };
+  document.addEventListener("mousemove", onResizeMove);
+  document.addEventListener("mouseup", endResize);
+}
+function onResizeMove(e){
+  if(!resizing) return;
+  const minW=resizing.type==="note"?160:220, minH=resizing.type==="note"?100:140;
+  let nw=Math.max(minW, resizing.ow+(e.clientX-resizing.sx)/boardZoom);
+  let nh=Math.max(minH, resizing.oh+(e.clientY-resizing.sy)/boardZoom);
+  resizing.nw=nw; resizing.nh=nh;
+  resizing.el.style.width=nw+"px"; resizing.el.style.height=nh+"px";
+  drawArrows();
+}
+function endResize(){
+  if(!resizing) return;
+  document.removeEventListener("mousemove", onResizeMove);
+  document.removeEventListener("mouseup", endResize);
+  resizing.obj.w=snap(resizing.nw); resizing.obj.h=snap(resizing.nh);
+  resizing=null; save(); renderQuestBoard();
+}
+
+/* notes */
+function addNote(){
+  const B=curBoard(); if(!B) return;
+  B.notes=B.notes||[];
+  let maxRight=20;
+  B.lists.forEach(l=> maxRight=Math.max(maxRight,(l.x||0)+(l.w||290)));
+  B.notes.forEach(n=> maxRight=Math.max(maxRight,(n.x||0)+(n.w||240)));
+  B.notes.push({ id:uid(), text:"", x:snap(maxRight+24), y:snap(20), w:240, h:160, color:"#F2C200" });
+  save(); renderQuestBoard();
+}
+const noteMenu=document.getElementById("noteMenu");
+const noteColors=document.getElementById("noteColors");
+let noteMenuId=null;
+const NOTE_PALETTE=["#F2C200","#C4B2FF","#A9D2CE","#E0B8C3","#BFD3B0","#F2851E"];
+function openNoteMenu(noteId,x,y){
+  noteMenuId=noteId;
+  const B=curBoard();
+  const n=B && B.notes.find(z=>z.id===noteId);
+  noteColors.innerHTML=NOTE_PALETTE.map(c=>`<button class="csw" data-color="${c}" aria-checked="${n&&n.color===c}" style="background:${c}"></button>`).join("");
+  noteMenu.classList.add("show");
+  const w=noteMenu.offsetWidth||180,h=noteMenu.offsetHeight||110;
+  noteMenu.style.left=Math.max(8,Math.min(x,window.innerWidth-w-8))+"px";
+  noteMenu.style.top=Math.max(8,Math.min(y,window.innerHeight-h-8))+"px";
+}
+function closeNoteMenu(){ noteMenu.classList.remove("show"); }
+noteColors.addEventListener("click", e=>{ const s=e.target.closest(".csw"); if(!s) return; const B=curBoard(); const n=B&&B.notes.find(z=>z.id===noteMenuId); if(n){ n.color=s.dataset.color; save(); renderQuestBoard(); } closeNoteMenu(); });
+noteMenu.addEventListener("click", e=>{ const it=e.target.closest(".ctx-item"); if(!it) return; closeNoteMenu(); const B=curBoard(); if(!B) return; B.notes=B.notes.filter(n=>n.id!==noteMenuId); B.links=(B.links||[]).filter(l=>l.from!==noteMenuId&&l.to!==noteMenuId); save(); renderQuestBoard(); toast("Note removed"); });
+
+/* arrows between any items (lists + notes) */
+function addLink(from, to){
+  const B=curBoard(); if(!B) return;
+  if(from===to) return;
+  B.links=B.links||[];
+  if(B.links.some(l=>l.from===from && l.to===to)){ toast("Already linked"); return; }
+  B.links.push({id:uid(), from, to}); save(); toast("Arrow added");
+}
+function removeLink(id){
+  const B=curBoard(); if(!B) return;
+  B.links=(B.links||[]).filter(l=>l.id!==id); save(); renderQuestBoard(); toast("Arrow removed");
+}
+function edgePoint(rect, toward){
+  const cx=rect.x+rect.w/2, cy=rect.y+rect.h/2;
+  const dx=toward.x-cx, dy=toward.y-cy;
+  if(dx===0 && dy===0) return {x:cx,y:cy};
+  const sx = dx!==0 ? (rect.w/2)/Math.abs(dx) : Infinity;
+  const sy = dy!==0 ? (rect.h/2)/Math.abs(dy) : Infinity;
+  const s=Math.min(sx,sy);
+  return { x:cx+dx*s, y:cy+dy*s };
+}
+function drawArrows(){
+  const B=curBoard(); if(!B) return;
+  const svg=document.getElementById("qbArrows"); if(!svg) return;
+  svg.setAttribute("width", boardCanvasW); svg.setAttribute("height", boardCanvasH);
+  const rectOf=id=>{ const el=document.querySelector(`.qb-list[data-list="${id}"], .qb-note[data-note="${id}"]`); if(!el) return null; return {x:el.offsetLeft, y:el.offsetTop, w:el.offsetWidth, h:el.offsetHeight}; };
+  let out=`<defs><marker id="ah" markerWidth="12" markerHeight="12" refX="9" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 Z"/></marker></defs>`;
+  (B.links||[]).forEach(lk=>{
+    const a=rectOf(lk.from), b=rectOf(lk.to); if(!a||!b) return;
+    const ac={x:a.x+a.w/2,y:a.y+a.h/2}, bc={x:b.x+b.w/2,y:b.y+b.h/2};
+    const p1=edgePoint(a,bc), p2=edgePoint(b,ac);
+    out+=`<line class="qb-arrow-hit" data-link="${lk.id}" x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}"/>`;
+    out+=`<line class="qb-arrow" x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" marker-end="url(#ah)"/>`;
+  });
+  svg.innerHTML=out;
+  svg.querySelectorAll(".qb-arrow-hit").forEach(ln=> ln.addEventListener("click", ()=> removeLink(ln.dataset.link)));
+}
+
+function applyZoom(){
+  const b=document.getElementById("qbBoard"), c=document.getElementById("qbCanvas");
+  b.style.width=boardCanvasW+"px"; b.style.height=boardCanvasH+"px";
+  b.style.transform=`scale(${boardZoom})`; b.style.transformOrigin="0 0";
+  c.style.width=(boardCanvasW*boardZoom)+"px"; c.style.height=(boardCanvasH*boardZoom)+"px";
+  document.getElementById("qbZoomLabel").textContent=Math.round(boardZoom*100)+"%";
+}
+
+/* list context menu */
+const listMenu=document.getElementById("listMenu");
+const listColors=document.getElementById("listColors");
+const listLock=document.getElementById("listLock");
+function openListMenu(listId,x,y){
+  listMenuId=listId;
+  const B=curBoard();
+  const l=B && B.lists.find(z=>z.id===listId);
+  const cur=l? (l.color||B.color) : "";
+  listColors.innerHTML=PALETTE.map(c=>`<button class="csw" data-color="${c}" aria-checked="${c===cur}" style="background:${c}" aria-label="list color"></button>`).join("");
+  const others=B? B.lists.filter(z=>z.id!==listId) : [];
+  let lockHtml=`<span class="ctx-lock-label">Lock until done</span>`;
+  lockHtml+=`<button data-lock="" aria-checked="${l&&!l.lockedUntil}">None — always open</button>`;
+  others.forEach(o=>{ lockHtml+=`<button data-lock="${o.id}" aria-checked="${l&&l.lockedUntil===o.id}">${escapeHtml(o.name)}</button>`; });
+  listLock.innerHTML=lockHtml;
+  listMenu.classList.add("show");
+  const w=listMenu.offsetWidth||180,h=listMenu.offsetHeight||150;
+  listMenu.style.left=Math.max(8,Math.min(x,window.innerWidth-w-8))+"px";
+  listMenu.style.top=Math.max(8,Math.min(y,window.innerHeight-h-8))+"px";
+}
+function closeListMenu(){ listMenu.classList.remove("show"); }
+listColors.addEventListener("click", e=>{
+  const s=e.target.closest(".csw"); if(!s) return;
+  const B=curBoard(); if(!B) return;
+  const l=B.lists.find(z=>z.id===listMenuId); if(!l) return;
+  l.color=s.dataset.color; save(); renderQuestBoard(); closeListMenu();
+});
+listLock.addEventListener("click", e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  const B=curBoard(); if(!B) return;
+  const l=B.lists.find(z=>z.id===listMenuId); if(!l) return;
+  l.lockedUntil = b.dataset.lock || null;
+  save(); renderQuestBoard(); closeListMenu();
+  toast(l.lockedUntil? "List locked until prerequisite is done" : "List unlocked");
+});
+listMenu.addEventListener("click", e=>{
+  const it=e.target.closest(".ctx-item"); if(!it) return;
+  const act=it.dataset.act, lid=listMenuId; closeListMenu();
+  const q=curQuest(), B=curBoard(); if(!q||!B) return;
+  if(act==="duplicate"){
+    const l=B.lists.find(x=>x.id===lid); if(!l) return;
+    const nl={id:uid(), name:l.name+" (copy)", color:l.color, x:snap((l.x||0)+GRID), y:snap((l.y||0)+GRID)};
+    B.lists.splice(B.lists.indexOf(l)+1,0,nl);
+    state.missions.filter(m=>m.questId===q.id&&m.listId===lid).forEach(m=>{ const c=JSON.parse(JSON.stringify(m)); c.id=uid(); c.listId=nl.id; c.createdAt=Date.now(); c.modifiedAt=Date.now(); state.missions.push(c); });
+    save(); renderQuestBoard(); renderQuests(); toast("List duplicated");
+  } else if(act==="remove"){
+    state.missions=state.missions.filter(m=>!(m.questId===q.id && m.listId===lid));
+    B.lists=B.lists.filter(l=>l.id!==lid);
+    B.links=(B.links||[]).filter(l=>l.from!==lid && l.to!==lid);
+    B.lists.forEach(l=>{ if(l.lockedUntil===lid) l.lockedUntil=null; });
+    save(); renderQuestBoard(); renderQuests(); toast("List removed");
+  }
+});
+
+/* ---- TABS (multiple boards per quest) ---- */
+const qbTabs=document.getElementById("qbTabs");
+const tabMenu=document.getElementById("tabMenu");
+const tabColors=document.getElementById("tabColors");
+let tabMenuId=null, draggedTab=null;
+function renderTabs(q){
+  qbTabs.innerHTML = q.boards.map(b=>`
+    <div class="qb-tab ${b.id===q.activeBoard?'active':''}" data-board="${b.id}" draggable="true" style="--tab-accent:${b.color}">
+      <span class="qb-tab-dot"></span>
+      <span class="qb-tab-name" data-board="${b.id}" title="Double-click to rename">${escapeHtml(b.name)}</span>
+      <button class="qb-tab-more" data-board="${b.id}" aria-label="Tab options">⋯</button>
+    </div>`).join("") + `<button class="qb-tab-add" id="qbTabAdd" aria-label="New tab" title="New board">+</button>`;
+  wireTabs(q);
+}
+function wireTabs(q){
+  qbTabs.querySelectorAll(".qb-tab").forEach(tab=>{
+    const id=tab.dataset.board;
+    tab.addEventListener("click", e=>{
+      if(e.target.closest(".qb-tab-more") || e.target.closest(".qb-tab-rename")) return;
+      if(id!==q.activeBoard){ q.activeBoard=id; linkFrom=null; save(); renderQuestBoard(); }
+    });
+    tab.querySelector(".qb-tab-name").addEventListener("dblclick", e=>{ e.stopPropagation(); startTabRename(tab.querySelector(".qb-tab-name")); });
+    tab.querySelector(".qb-tab-more").addEventListener("click", e=>{ e.stopPropagation(); const r=e.currentTarget.getBoundingClientRect(); openTabMenu(id, r.right-180, r.bottom+4); });
+    tab.addEventListener("dragstart", ()=>{ draggedTab=id; });
+    tab.addEventListener("dragover", e=>{ e.preventDefault(); });
+    tab.addEventListener("drop", e=>{ e.preventDefault(); if(draggedTab && draggedTab!==id) reorderBoard(draggedTab, id); draggedTab=null; });
+  });
+  const add=document.getElementById("qbTabAdd"); if(add) add.addEventListener("click", addBoard);
+}
+function addBoard(){
+  const q=curQuest(); if(!q) return;
+  const b={ id:uid(), name:"Board "+(q.boards.length+1), color:q.color||"#234BFF", lists:[], notes:[], links:[] };
+  q.boards.push(b); q.activeBoard=b.id; linkFrom=null; save(); renderQuestBoard();
+}
+function duplicateBoard(id){
+  const q=curQuest(); if(!q) return;
+  const src=q.boards.find(b=>b.id===id); if(!src) return;
+  const idMap={};
+  const lists=src.lists.map(l=>{ const nid=uid(); idMap[l.id]=nid; return Object.assign({},l,{id:nid}); });
+  const notes=(src.notes||[]).map(n=>{ const nid=uid(); idMap[n.id]=nid; return Object.assign({},n,{id:nid}); });
+  lists.forEach(l=>{ if(l.lockedUntil && idMap[l.lockedUntil]) l.lockedUntil=idMap[l.lockedUntil]; });
+  const links=(src.links||[]).map(lk=>({id:uid(), from:idMap[lk.from]||lk.from, to:idMap[lk.to]||lk.to}));
+  const nb={ id:uid(), name:src.name+" (copy)", color:src.color, lists, notes, links };
+  src.lists.forEach(l=>{ state.missions.filter(m=>m.questId===q.id&&m.listId===l.id).forEach(m=>{ const c=JSON.parse(JSON.stringify(m)); c.id=uid(); c.listId=idMap[l.id]; c.createdAt=Date.now(); c.modifiedAt=Date.now(); state.missions.push(c); }); });
+  q.boards.splice(q.boards.indexOf(src)+1,0,nb); q.activeBoard=nb.id; save(); renderQuestBoard(); renderQuests(); toast("Tab duplicated");
+}
+function removeBoard(id){
+  const q=curQuest(); if(!q) return;
+  if(q.boards.length<=1){ toast("A quest needs at least one tab"); return; }
+  const b=q.boards.find(x=>x.id===id); if(!b) return;
+  const listIds=b.lists.map(l=>l.id);
+  state.missions=state.missions.filter(m=>!(m.questId===q.id && listIds.includes(m.listId)));
+  q.boards=q.boards.filter(x=>x.id!==id);
+  if(q.activeBoard===id) q.activeBoard=q.boards[0].id;
+  save(); renderQuestBoard(); renderQuests(); toast("Tab removed");
+}
+function reorderBoard(fromId, beforeId){
+  const q=curQuest(); if(!q) return; const arr=q.boards;
+  const fi=arr.findIndex(b=>b.id===fromId); if(fi<0) return;
+  const moved=arr.splice(fi,1)[0];
+  let ti=arr.findIndex(b=>b.id===beforeId); if(ti<0) ti=arr.length;
+  arr.splice(ti,0,moved); save(); renderQuestBoard();
+}
+function startTabRename(span){
+  const q=curQuest(); const b=q&&q.boards.find(z=>z.id===span.dataset.board); if(!b) return;
+  const inp=document.createElement("input"); inp.className="qb-tab-rename"; inp.value=b.name;
+  span.replaceWith(inp); inp.focus(); inp.select();
+  const commit=()=>{ b.name=inp.value.trim()||"Board"; save(); renderQuestBoard(); };
+  inp.addEventListener("keydown",e=>{ if(e.key==="Enter"){e.preventDefault();inp.blur();} else if(e.key==="Escape"){ renderQuestBoard(); } });
+  inp.addEventListener("blur", commit);
+  inp.addEventListener("click", e=>e.stopPropagation());
+}
+function openTabMenu(id,x,y){
+  tabMenuId=id;
+  const q=curQuest(); const b=q&&q.boards.find(z=>z.id===id);
+  tabColors.innerHTML=PALETTE.map(c=>`<button class="csw" data-color="${c}" aria-checked="${b&&b.color===c}" style="background:${c}"></button>`).join("");
+  tabMenu.classList.add("show");
+  const w=tabMenu.offsetWidth||180,h=tabMenu.offsetHeight||150;
+  tabMenu.style.left=Math.max(8,Math.min(x,window.innerWidth-w-8))+"px";
+  tabMenu.style.top=Math.max(8,Math.min(y,window.innerHeight-h-8))+"px";
+}
+function closeTabMenu(){ tabMenu.classList.remove("show"); }
+tabColors.addEventListener("click", e=>{ const s=e.target.closest(".csw"); if(!s) return; const q=curQuest(); const b=q.boards.find(z=>z.id===tabMenuId); if(b){ b.color=s.dataset.color; save(); renderQuestBoard(); } closeTabMenu(); });
+tabMenu.addEventListener("click", e=>{
+  const it=e.target.closest(".ctx-item"); if(!it) return;
+  const act=it.dataset.act, id=tabMenuId; closeTabMenu();
+  if(act==="rename"){ const span=document.querySelector(`.qb-tab-name[data-board="${id}"]`); if(span) startTabRename(span); }
+  else if(act==="duplicate") duplicateBoard(id);
+  else if(act==="remove") removeBoard(id);
+});
+
+/* quest options menu */
+const qbMenuPop=document.getElementById("qbMenuPop");
+function closeQbMenu(){ qbMenuPop.classList.remove("show"); }
+document.getElementById("qbMenu").addEventListener("click", e=>{
+  e.stopPropagation();
+  const r=e.currentTarget.getBoundingClientRect();
+  qbMenuPop.classList.add("show");
+  const w=qbMenuPop.offsetWidth||180;
+  qbMenuPop.style.left=Math.max(8,Math.min(r.right-w, window.innerWidth-w-8))+"px";
+  qbMenuPop.style.top=(r.bottom+4)+"px";
+});
+qbMenuPop.addEventListener("click", e=>{
+  const it=e.target.closest(".ctx-item"); if(!it) return;
+  const act=it.dataset.act; closeQbMenu();
+  if(act==="edit"){ if(boardQuestId) openQuestModal({ questId:boardQuestId }); }
+  else if(act==="delete"){
+    const id=boardQuestId;
+    state.missions.forEach(m=>{ if(m.questId===id){ m.questId=null; m.listId=null; m.modifiedAt=Date.now(); } });
+    state.quests=state.quests.filter(q=>q.id!==id);
+    save(); switchView("quests"); renderQuests(); renderMissions(); toast("Quest deleted · missions kept");
+  }
+});
+
+/* top controls (bound once) */
+document.getElementById("qbBack").addEventListener("click", ()=> switchView("quests"));
+document.getElementById("qbAddList").addEventListener("click", ()=>{ if(boardQuestId) addList(boardQuestId); });
+const qbTitle=document.getElementById("qbTitle");
+qbTitle.addEventListener("change", ()=>{ const q=state.quests.find(x=>x.id===boardQuestId); if(!q) return; q.name=qbTitle.value.trim()||"Untitled Quest"; save(); renderQuests(); });
+qbTitle.addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); qbTitle.blur(); } });
+const qbSummary=document.getElementById("qbSummary");
+qbSummary.addEventListener("input", ()=>{ autoGrow(qbSummary); const q=state.quests.find(x=>x.id===boardQuestId); if(q){ q.summary=qbSummary.value; save(); } });
+function autoGrow(t){ t.style.height="auto"; t.style.height=t.scrollHeight+"px"; }
+document.getElementById("qbColors").addEventListener("click", e=>{ const s=e.target.closest(".qb-swatch"); if(!s) return; const q=state.quests.find(x=>x.id===boardQuestId); if(!q) return; q.color=s.dataset.color; save(); renderQuestBoard(); renderQuests(); });
+document.getElementById("qbDue").addEventListener("click", e=>{ const o=e.target.closest(".due-pill"); if(!o) return; document.querySelectorAll("#qbDue .due-pill").forEach(p=>{p.setAttribute("aria-checked","false");p.tabIndex=-1;}); o.setAttribute("aria-checked","true"); o.tabIndex=0; boardDue=o.dataset.due; });
+document.getElementById("qbZoomIn").addEventListener("click", ()=>{ boardZoom=Math.min(1.4, +(boardZoom+0.1).toFixed(2)); applyZoom(); drawArrows(); });
+document.getElementById("qbZoomOut").addEventListener("click", ()=>{ boardZoom=Math.max(0.5, +(boardZoom-0.1).toFixed(2)); applyZoom(); drawArrows(); });
+document.getElementById("qbAddNote").addEventListener("click", ()=>{ if(boardQuestId) addNote(); });
+document.addEventListener("click", e=>{
+  if(!listMenu.contains(e.target)) closeListMenu();
+  if(!qbMenuPop.contains(e.target)) closeQbMenu();
+  if(!noteMenu.contains(e.target)) closeNoteMenu();
+  if(!tabMenu.contains(e.target)) closeTabMenu();
+});
+document.addEventListener("keydown", e=>{
+  if(e.key==="Escape"){
+    closeListMenu(); closeQbMenu(); closeNoteMenu(); closeTabMenu();
+    if(linkFrom){ linkFrom=null; if(boardQuestId) renderQuestBoard(); }
+  }
+});
+
+/* ============================================================
+   PASS 5: MISSION CONTEXT MENU + EDIT
+   ============================================================ */
+const ctxMenu = document.getElementById("ctxMenu");
+let ctxMissionId = null;
+function openCtxMenu(id, x, y){
+  ctxMissionId = id;
+  ctxMenu.classList.add("show");
+  const w=ctxMenu.offsetWidth||160, h=ctxMenu.offsetHeight||140;
+  ctxMenu.style.left = Math.max(8, Math.min(x, window.innerWidth - w - 8)) + "px";
+  ctxMenu.style.top  = Math.max(8, Math.min(y, window.innerHeight - h - 8)) + "px";
+}
+function closeCtxMenu(){ ctxMenu.classList.remove("show"); }
+ctxMenu.addEventListener("click", e=>{
+  const it=e.target.closest(".ctx-item"); if(!it) return;
+  const act=it.dataset.act, id=ctxMissionId; closeCtxMenu();
+  if(act==="edit") openMissionEdit(id);
+  else if(act==="duplicate") duplicateMission(id);
+  else if(act==="remove") removeMission(id);
+});
+document.addEventListener("click", e=>{ if(!ctxMenu.contains(e.target)) closeCtxMenu(); });
+document.addEventListener("scroll", closeCtxMenu, true);
+window.addEventListener("resize", closeCtxMenu);
+
+function refreshAfterMissionChange(){
+  save(); renderMissions(); renderQuests();
+  if(boardQuestId) renderQuestBoard();
+}
+function duplicateMission(id){
+  const m=state.missions.find(x=>x.id===id); if(!m) return;
+  const c=JSON.parse(JSON.stringify(m));
+  c.id=uid(); c.title=m.title+" (copy)"; c.createdAt=Date.now(); c.modifiedAt=Date.now(); c.done=false;
+  const idx=state.missions.findIndex(x=>x.id===id);
+  state.missions.splice(idx+1,0,c);
+  refreshAfterMissionChange(); toast("Duplicated");
+}
+function removeMission(id){
+  state.missions=state.missions.filter(x=>x.id!==id);
+  refreshAfterMissionChange(); toast("Removed");
+}
+
+/* ---- edit modal ---- */
+const missionModal=document.getElementById("missionModal");
+let editMissionId=null, meColor=null;
+const meSwatches=document.getElementById("meSwatches");
+meSwatches.innerHTML=PALETTE.map((c,i)=>`<button class="swatch" role="radio" data-color="${c}" aria-checked="false" tabindex="${i===0?0:-1}" style="background:${c}" aria-label="color ${i+1}"></button>`).join("");
+radioNav(meSwatches, o=> meColor=o.dataset.color);
+
+function tsToLocalInput(ts){ const d=new Date(ts - new Date(ts).getTimezoneOffset()*60000); return d.toISOString().slice(0,16); }
+
+function openMissionEdit(id){
+  const m=state.missions.find(x=>x.id===id); if(!m) return;
+  editMissionId=id;
+  document.getElementById("meTitle").value=m.title;
+  document.getElementById("meDue").value=tsToLocalInput(m.due);
+  document.getElementById("meLocation").value=m.location||"";
+  document.getElementById("meAmount").value=m.amount||0;
+  const qs=document.getElementById("meQuest");
+  qs.innerHTML='<option value="">— No quest —</option>'+state.quests.map(q=>`<option value="${q.id}">${escapeHtml(q.name)}</option>`).join("");
+  qs.value=m.questId||"";
+  meColor=m.color||"#234BFF";
+  meSwatches.querySelectorAll("[role=radio]").forEach(o=>{ o.setAttribute("aria-checked","false"); o.tabIndex=-1; });
+  const match=meSwatches.querySelector(`[data-color="${meColor}"]`);
+  if(match){ match.setAttribute("aria-checked","true"); match.tabIndex=0; }
+  else { const first=meSwatches.querySelector("[role=radio]"); first.tabIndex=0; }
+  document.getElementById("mePrio").setAttribute("aria-checked", String(!!m.priority));
+  missionModal.classList.add("show");
+  setTimeout(()=>document.getElementById("meTitle").focus(),50);
+}
+function closeMissionModal(){ missionModal.classList.remove("show"); }
+
+document.getElementById("mePrio").addEventListener("click", e=>{
+  const on=e.currentTarget.getAttribute("aria-checked")==="true";
+  e.currentTarget.setAttribute("aria-checked", String(!on));
+});
+document.querySelectorAll(".me-presets button").forEach(b=> b.addEventListener("click", ()=>{
+  document.getElementById("meDue").value=tsToLocalInput(dueFromPreset(b.dataset.p));
+}));
+document.getElementById("meSave").addEventListener("click", ()=>{
+  const m=state.missions.find(x=>x.id===editMissionId); if(!m) return;
+  m.title=document.getElementById("meTitle").value.trim()||m.title;
+  const dv=document.getElementById("meDue").value;
+  if(dv){ const t=new Date(dv).getTime(); if(!isNaN(t)) m.due=t; }
+  m.location=document.getElementById("meLocation").value.trim();
+  m.amount=parseFloat(document.getElementById("meAmount").value)||0;
+  const newQuestId=document.getElementById("meQuest").value||null;
+  if(newQuestId!==m.questId){
+    m.questId=newQuestId;
+    m.listId = newQuestId ? firstListId(state.quests.find(x=>x.id===newQuestId)) : null;
+  }
+  m.color=meColor||m.color;
+  m.priority=document.getElementById("mePrio").getAttribute("aria-checked")==="true";
+  m.modifiedAt=Date.now();
+  closeMissionModal(); refreshAfterMissionChange(); toast("Saved");
+});
+document.getElementById("meDelete").addEventListener("click", ()=>{ const id=editMissionId; closeMissionModal(); removeMission(id); });
+document.getElementById("meClose").addEventListener("click", closeMissionModal);
+missionModal.addEventListener("click", e=>{ if(e.target===missionModal) closeMissionModal(); });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && missionModal.classList.contains("show")) closeMissionModal(); });
+
+/* ============================================================
+   PASS 7: APPEARANCE SETTINGS (fonts / themes / shape / size)
+   ============================================================ */
+const FONTS=[
+  {id:"space-grotesk", label:"Space Grotesk", stack:'"Space Grotesk", system-ui, sans-serif', mono:'"Space Mono", ui-monospace, monospace'},
+  {id:"inter",         label:"Inter",         stack:'"Inter", system-ui, sans-serif',         mono:'"Space Mono", ui-monospace, monospace'},
+  {id:"plex-mono",     label:"IBM Plex Mono",  stack:'"IBM Plex Mono", ui-monospace, monospace',mono:'"IBM Plex Mono", ui-monospace, monospace'},
+  {id:"archivo",       label:"Archivo",        stack:'"Archivo", system-ui, sans-serif',       mono:'"Space Mono", ui-monospace, monospace'},
+  {id:"syne",          label:"Syne",           stack:'"Syne", system-ui, sans-serif',          mono:'"Space Mono", ui-monospace, monospace'},
+];
+const THEMES=[
+  {id:"default", label:"Creme · Ink", bg:"#F2EEE2", bg2:"#E9E4D4", ink:"#141210", inkSoft:"#4a463d", accent:"#234BFF", accent2:"#C4B2FF", accent2d:"#8C73E8"},
+  {id:"sage",    label:"Sage",        bg:"#EEF1E9", bg2:"#E2E7D8", ink:"#1E2519", inkSoft:"#4d5544", accent:"#4F7A5B", accent2:"#CBB089", accent2d:"#9C7E4F"},
+  {id:"mist",    label:"Mist",        bg:"#ECEFF2", bg2:"#DEE4EA", ink:"#16202B", inkSoft:"#495663", accent:"#3E6B8C", accent2:"#A9C7D6", accent2d:"#5E8AA3"},
+  {id:"blush",   label:"Blush",       bg:"#F4ECEC", bg2:"#EBDDDD", ink:"#2A1E20", inkSoft:"#5b4a4d", accent:"#B5546A", accent2:"#E0B8C3", accent2d:"#A06678"},
+  {id:"clay",    label:"Clay",        bg:"#F3EDE4", bg2:"#E9DFD0", ink:"#261E14", inkSoft:"#5a4d3b", accent:"#C2703D", accent2:"#DFC7A0", accent2d:"#A07E4C"},
+  {id:"lavender",label:"Lavender",    bg:"#EFEBF4", bg2:"#E3DCEC", ink:"#211B2B", inkSoft:"#4f4760", accent:"#6E5AA6", accent2:"#C9BBE6", accent2d:"#8470B8"},
+  {id:"forest",  label:"Forest",      bg:"#EAEEEA", bg2:"#DBE2DB", ink:"#14201A", inkSoft:"#44544b", accent:"#2F6B4F", accent2:"#BFD3B0", accent2d:"#5E8A6A"},
+  {id:"ocean",   label:"Ocean",       bg:"#E8F0F0", bg2:"#D7E4E4", ink:"#102222", inkSoft:"#41595a", accent:"#1F7A7A", accent2:"#A9D2CE", accent2d:"#4E9A95"},
+  {id:"mauve",   label:"Mauve",       bg:"#F1ECEC", bg2:"#E5DADA", ink:"#241C1C", inkSoft:"#564949", accent:"#8A5A5A", accent2:"#D9BFB6", accent2d:"#A47B72"},
+  {id:"indigo",  label:"Indigo",      bg:"#ECEDF2", bg2:"#DEE0EA", ink:"#15171F", inkSoft:"#474b59", accent:"#44509A", accent2:"#B6BCE0", accent2d:"#6B74B5"},
+];
+
+function buildSettingsUI(){
+  document.getElementById("setFonts").innerHTML = FONTS.map(f=>
+    `<button class="font-card" data-font="${f.id}" aria-pressed="false" style="font-family:${f.stack}">
+       <div class="fc-name">${f.label}</div><div class="fc-sample">Quests · Missions 123</div>
+     </button>`).join("");
+  document.getElementById("setThemes").innerHTML = THEMES.map(t=>
+    `<button class="theme-card" data-theme="${t.id}" aria-pressed="false">
+       <div class="theme-swatches"><i style="background:${t.bg}"></i><i style="background:${t.accent}"></i><i style="background:${t.accent2}"></i></div>
+       <div class="theme-name">${t.label}</div>
+     </button>`).join("");
+}
+function applySettings(){
+  const s=state.settings, root=document.documentElement.style;
+  const f=FONTS.find(x=>x.id===s.font)||FONTS[0];
+  root.setProperty("--font-display", f.stack);
+  root.setProperty("--font-mono", f.mono);
+  const t=THEMES.find(x=>x.id===s.theme)||THEMES[0];
+  root.setProperty("--bg",t.bg); root.setProperty("--bg-2",t.bg2);
+  root.setProperty("--ink",t.ink); root.setProperty("--ink-soft",t.inkSoft);
+  root.setProperty("--accent",t.accent); root.setProperty("--accent-2",t.accent2); root.setProperty("--accent-2d",t.accent2d);
+  root.setProperty("--radius", s.shape==="round"?"12px":"0px");
+  root.setProperty("--scale", s.fontSize==="s"?".92":s.fontSize==="l"?"1.1":"1");
+  document.querySelectorAll("#setFonts .font-card").forEach(c=>c.setAttribute("aria-pressed",String(c.dataset.font===s.font)));
+  document.querySelectorAll("#setThemes .theme-card").forEach(c=>c.setAttribute("aria-pressed",String(c.dataset.theme===s.theme)));
+  document.querySelectorAll("#setShape button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.shape===s.shape)));
+  document.querySelectorAll("#setSize button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.size===s.fontSize)));
+}
+document.getElementById("setFonts").addEventListener("click",e=>{ const c=e.target.closest(".font-card"); if(!c)return; state.settings.font=c.dataset.font; save(); applySettings(); });
+document.getElementById("setThemes").addEventListener("click",e=>{ const c=e.target.closest(".theme-card"); if(!c)return; state.settings.theme=c.dataset.theme; save(); applySettings(); });
+document.getElementById("setShape").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b)return; state.settings.shape=b.dataset.shape; save(); applySettings(); });
+document.getElementById("setSize").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b)return; state.settings.fontSize=b.dataset.size; save(); applySettings(); });
+buildSettingsUI();
+applySettings();
+
+/* ============================================================
+   PASS 8: DATA — export / import / reset (JSON)
+   ============================================================ */
+function rerenderAll(){
+  buildSettingsUI(); applySettings();
+  refreshLinkQuest(); renderStage(); renderQuests(); renderMissions(); updateDataStats();
+}
+function updateDataStats(){
+  const el=document.getElementById("dataStats"); if(!el) return;
+  el.textContent = `${state.quests.length} quests · ${state.missions.length} missions saved locally`;
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url; a.download=`missions-io-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast("Backup exported");
+}
+const dataFile=document.getElementById("dataFile");
+document.getElementById("dataExport").addEventListener("click", exportData);
+document.getElementById("dataImport").addEventListener("click", ()=> dataFile.click());
+dataFile.addEventListener("change", ()=>{
+  const f=dataFile.files[0]; if(!f){ return; }
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const data=JSON.parse(r.result);
+      if(!data || typeof data!=="object" || !Array.isArray(data.quests) || !Array.isArray(data.missions))
+        throw new Error("shape");
+      state=Object.assign(defaultState(), data);
+      boardQuestId=null;
+      migrate(); save(); rerenderAll();
+      switchView("settings");
+      toast("Data imported");
+    }catch(e){ toast("Couldn't import — not a valid backup"); }
+    dataFile.value="";
+  };
+  r.onerror=()=>{ toast("Couldn't read that file"); dataFile.value=""; };
+  r.readAsText(f);
+});
+let resetArmed=false;
+const dataReset=document.getElementById("dataReset");
+dataReset.addEventListener("click", ()=>{
+  if(!resetArmed){ resetArmed=true; dataReset.textContent="Confirm — erase everything"; dataReset.classList.add("danger"); return; }
+  state=defaultState(); boardQuestId=null; migrate(); save(); rerenderAll();
+  resetArmed=false; dataReset.textContent="Reset all data"; dataReset.classList.remove("danger");
+  switchView("home"); toast("All data reset");
+});
+updateDataStats();
+
+/* ============================================================
+   NAV / VIEW SWITCHING
+   ============================================================ */
+const navItems = [...document.querySelectorAll(".navi")];
+function switchView(name){
+  navItems.forEach(t=> t.setAttribute("aria-current", String(t.dataset.view===name)));
+  document.querySelectorAll(".view").forEach(v=> v.classList.remove("active"));
+  const target=document.getElementById("view-"+name);
+  if(target) target.classList.add("active");
+  document.body.classList.toggle("home-active", name==="home");
+  document.body.classList.toggle("board-active", name==="quest");
+  if(name!=="quest") boardQuestId=null;
+  if(typeof resetArmed!=="undefined" && resetArmed){ resetArmed=false; const dr=document.getElementById("dataReset"); if(dr){ dr.textContent="Reset all data"; dr.classList.remove("danger"); } }
+  if(name==="quests")   renderQuests();
+  if(name==="missions") renderMissions();
+  if(name==="home"){ refreshLinkQuest(); setTimeout(()=>capInput.focus(),40); }
+  window.scrollTo({top:0});
+}
+navItems.forEach(t=> t.addEventListener("click", ()=> switchView(t.dataset.view)));
+document.getElementById("brandHome").addEventListener("click", ()=> switchView("home"));
+
+/* ============================================================
+   SETTINGS STUB — open-on-dashboard toggle
+   ============================================================ */
+const dashToggle = document.getElementById("dashToggle");
+function applyDashboardSetting(){ dashToggle.setAttribute("aria-checked", String(state.settings.dashboardEnabled)); }
+dashToggle.addEventListener("click", ()=>{
+  state.settings.dashboardEnabled = !state.settings.dashboardEnabled;
+  save(); applyDashboardSetting();
+  toast(state.settings.dashboardEnabled ? "Will open on Dashboard" : "Will open on capture");
+});
+
+/* ============================================================
+   UTIL
+   ============================================================ */
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+let toastT;
+function toast(msg){
+  const el=document.getElementById("toast");
+  el.textContent=msg; el.classList.add("show");
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove("show"), 2200);
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+applyDashboardSetting();
+refreshLinkQuest();
+renderStage();
+switchView(state.settings.dashboardEnabled ? "dashboard" : "home");
+
+</script>
+</body>
+</html>
