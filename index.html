@@ -688,7 +688,8 @@ svg.qb-title-shape{ border:none; background:transparent; overflow:visible; }
 
 /* section shapes (background layer) */
 .qb-shape{ position:absolute; pointer-events:none; z-index:0; }
-.qb-shape-fill{ position:absolute; inset:0; border:var(--border-w) solid var(--ink); }
+.qb-shape-fill{ position:absolute; inset:0; border:var(--border-w) solid var(--ink); pointer-events:auto; cursor:grab; }
+.qb-shape.dragging-list .qb-shape-fill{ cursor:grabbing; }
 .qb-shape.selected{ outline:3px solid var(--accent); outline-offset:4px; }
 .qb-shape-grip, .qb-shape-more{ position:absolute; top:6px; width:1.7rem; height:1.7rem; border:2px solid var(--ink); background:var(--bg); color:var(--ink); border-radius:var(--radius); pointer-events:auto; z-index:6; cursor:pointer; font-weight:700; line-height:1; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); }
 .qb-shape-grip{ left:6px; cursor:grab; }
@@ -771,6 +772,12 @@ svg.qb-title-shape{ border:none; background:transparent; overflow:visible; }
 
 /* ---- remove remaining hard ink lines site-wide -> thin glass edges ---- */
 .qb-top, .qb-toolbar, .qb-tabs{ border-bottom:1px solid var(--glass-brd) !important; }
+/* heading bands sit on a solid surface so the page grid doesn't show through */
+.qb-top, .qb-tabs, .qb-toolbar{ background:var(--bg); position:relative; z-index:1; }
+/* section box + title can be dragged from their empty body, not just the grip */
+.qb-title-body{ cursor:grab; }
+.qb-title.dragging-list .qb-title-body{ cursor:grabbing; }
+.qb-title-text, .qb-title-sub{ cursor:text; }
 header.topbar{ border-bottom:1px solid var(--glass-brd) !important; }
 .qb-tab, .qb-tab-add{ border:1px solid var(--glass-brd) !important; border-bottom:none !important; top:0 !important; }
 .qb-tab.active{ background:var(--glass-bg); }
@@ -2187,6 +2194,11 @@ function wireBoard(q){
     const t=B.titles.find(x=>x.id===g.dataset.title);
     if(t) startMove(e, g.closest(".qb-title"), t);
   }));
+  board.querySelectorAll(".qb-title").forEach(el=> el.addEventListener("mousedown", e=>{
+    if(e.target.closest(".qb-title-text, .qb-title-sub, .qb-title-grip, .qb-connect, .qb-title-more, .qb-resize")) return;
+    const t=B.titles.find(x=>x.id===el.dataset.title);
+    if(t) startMove(e, el, t);
+  }));
   board.querySelectorAll(".qb-title-text").forEach(ed=> ed.addEventListener("input", ()=>{ const t=B.titles.find(x=>x.id===ed.dataset.title); if(t){ t.text=ed.innerText; save(); } }));
   board.querySelectorAll(".qb-title-sub").forEach(ed=> ed.addEventListener("input", ()=>{ const t=B.titles.find(x=>x.id===ed.dataset.titlesub); if(t){ t.sub=ed.innerText; save(); } }));
   board.querySelectorAll(".qb-title-more").forEach(b=> b.addEventListener("click", e=>{
@@ -2207,6 +2219,11 @@ function wireBoard(q){
     e.stopPropagation();
     const s=B.shapes.find(x=>x.id===g.dataset.shape);
     if(s) startMove(e, g.closest(".qb-shape"), s);
+  }));
+  board.querySelectorAll(".qb-shape-fill").forEach(f=> f.addEventListener("mousedown", e=>{
+    e.stopPropagation();
+    const el=f.closest(".qb-shape"); const s=B.shapes.find(x=>x.id===el.dataset.shape);
+    if(s) startMove(e, el, s);
   }));
   board.querySelectorAll(".qb-shape-more").forEach(b=> b.addEventListener("click", e=>{
     e.stopPropagation(); const r=b.getBoundingClientRect(); openShapeMenu(b.dataset.shape, r.right-180, r.bottom+4);
