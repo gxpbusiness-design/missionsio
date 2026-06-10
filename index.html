@@ -768,6 +768,28 @@ svg.qb-title-shape{ border:none; background:transparent; overflow:visible; }
 .card:hover, .btn:hover, .due-opt:hover, .tab:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
 .qb-card:hover{ transform:translateY(-1px); box-shadow:var(--shadow-sm); }
 .qb-back:hover, .qb-addlist-btn:hover{ transform:translateY(-2px); }
+
+/* ---- remove remaining hard ink lines site-wide -> thin glass edges ---- */
+.qb-top, .qb-toolbar, .qb-tabs{ border-bottom:1px solid var(--glass-brd) !important; }
+header.topbar{ border-bottom:1px solid var(--glass-brd) !important; }
+.qb-tab, .qb-tab-add{ border:1px solid var(--glass-brd) !important; border-bottom:none !important; top:0 !important; }
+.qb-tab.active{ background:var(--glass-bg); }
+/* solid accent toolbar buttons keep their fill, just lose the dark edge */
+.qb-addlist-btn, .qb-zoom button, .qb-back, .qb-menu-btn{ border-width:1px !important; border-color:var(--glass-brd) !important; }
+/* mission filter chips + segmented controls + selects */
+.fchip{ border:1px solid var(--glass-brd) !important; background:var(--glass-bg2); box-shadow:var(--shadow-sm); -webkit-backdrop-filter:blur(var(--glass-blur)); backdrop-filter:blur(var(--glass-blur)); }
+.fchip:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
+.fchip[aria-pressed="true"]{ background:var(--accent); color:#fff; border-color:transparent !important; }
+.seg{ border:1px solid var(--glass-brd) !important; -webkit-backdrop-filter:blur(var(--glass-blur)); backdrop-filter:blur(var(--glass-blur)); }
+.seg button{ background:var(--glass-bg2); }
+.seg button[aria-pressed="true"]{ background:var(--accent); color:#fff; }
+.seg button+button{ border-left:1px solid var(--glass-brd) !important; }
+.qfilter select{ border:1px solid var(--glass-brd) !important; background:var(--glass-bg2); }
+.mrow .qname-chip{ border:1px solid var(--glass-brd) !important; background:var(--glass-bg2); }
+/* modal / wizard / sheet / card dividers + capture row */
+.cap-card.chat .cap-inputrow{ border-top:1px solid var(--glass-brd) !important; }
+.wiz-head, .wiz-foot, .sheet-foot, .review-cover, .sheet-cover, .card .cover{ border-color:var(--glass-brd) !important; border-width:1px !important; }
+.switch, .mrow .chk, .swatch{ border-width:1px !important; border-color:var(--glass-brd) !important; }
 </style>
 </head>
 <body>
