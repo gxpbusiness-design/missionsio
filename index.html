@@ -555,8 +555,8 @@ body.board-active main{ padding:0; height:100vh; }
 .qb-back{ border:var(--border-w) solid var(--ink); background:var(--bg); border-radius:var(--radius); padding:.45rem .8rem; font-weight:700; font-family:inherit; color:var(--ink); cursor:pointer; box-shadow:var(--shadow-sm); white-space:nowrap; transition:transform .07s; }
 .qb-back:hover{ transform:translate(-2px,-2px); }
 .qb-head{ min-width:0; }
-.qb-title{ font-family:inherit; font-size:1.7rem; font-weight:700; letter-spacing:-.6px; border:none; background:transparent; color:var(--ink); width:100%; outline:none; padding:.1rem .2rem; border-radius:var(--radius); }
-.qb-title:focus{ background:var(--bg-2); }
+.qb-qtitle{ font-family:inherit; font-size:1.7rem; font-weight:700; letter-spacing:-.6px; border:none; background:transparent; color:var(--ink); width:100%; outline:none; padding:.1rem .2rem; border-radius:var(--radius); }
+.qb-qtitle:focus{ background:var(--bg-2); }
 .qb-controls{ display:flex; align-items:center; gap:.6rem; margin:.45rem 0; }
 .qb-colors{ display:flex; gap:.3rem; }
 .qb-swatch{ width:22px; height:22px; border:2px solid var(--ink); border-radius:var(--radius); cursor:pointer; padding:0; }
@@ -573,13 +573,14 @@ body.board-active main{ padding:0; height:100vh; }
 .qb-tools{ display:flex; align-items:center; gap:.8rem; }
 .qb-addlist-btn{ border:var(--border-w) solid var(--ink); background:var(--accent); color:#fff; border-radius:var(--radius); padding:.4rem .9rem; font-weight:700; font-family:inherit; cursor:pointer; box-shadow:var(--shadow-sm); }
 .qb-addlist-btn:hover{ transform:translate(-2px,-2px); }
-.due-pills.board{ gap:.4rem; }
+.due-pills.board{ gap:.4rem; visibility:hidden; opacity:0; transition:opacity .12s; }
+.due-pills.board.show{ visibility:visible; opacity:1; }
 .due-pills.board .due-pill{ padding:.32rem .7rem; font-size:.8rem; }
 .qb-zoom{ display:flex; align-items:center; gap:.5rem; }
 .qb-zoom button{ border:var(--border-w) solid var(--ink); background:var(--bg); width:2rem; height:2rem; border-radius:var(--radius); font-weight:700; cursor:pointer; color:var(--ink); line-height:1; }
 .qb-zoom button:hover{ background:var(--ink); color:var(--bg); }
 #qbZoomLabel{ font-family:var(--font-mono); font-size:.74rem; font-weight:700; min-width:3rem; text-align:center; }
-.qb-scroll{ flex:1; overflow:auto; padding:1.2rem 1.4rem; }
+.qb-scroll{ flex:1; overflow:auto; padding:1.2rem 1.4rem; background-image:linear-gradient(rgba(20,18,16,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(20,18,16,.045) 1px, transparent 1px); background-size:28px 28px; }
 .qb-canvas{ position:relative; }
 .qb-board{ position:relative; }
 .qb-list{ position:absolute; width:290px; border:var(--border-w) solid var(--ink); border-radius:var(--radius); background:var(--bg-2); box-shadow:var(--shadow-sm); display:flex; flex-direction:column; max-height:560px; }
@@ -630,10 +631,68 @@ body.board-active main{ padding:0; height:100vh; }
 .qb-note{ position:absolute; border:var(--border-w) solid var(--ink); border-radius:var(--radius); background:var(--note-accent,#F2C200); box-shadow:var(--shadow-sm); display:flex; flex-direction:column; }
 .qb-note-head{ display:flex; align-items:center; gap:.4rem; padding:.35rem .5rem; border-bottom:var(--border-w) solid var(--ink); cursor:grab; user-select:none; }
 .qb-note.dragging-list .qb-note-head{ cursor:grabbing; }
-.qb-note-grip{ flex:1; font-family:var(--font-mono); font-weight:700; font-size:.7rem; letter-spacing:1px; text-transform:uppercase; color:var(--ink); }
-.qb-note-more{ border:2px solid var(--ink); background:transparent; color:var(--ink); border-radius:var(--radius); width:1.5rem; height:1.5rem; font-weight:700; cursor:pointer; line-height:1; flex:none; }
-.qb-note-text{ flex:1; border:none; background:transparent; resize:none; outline:none; font-family:inherit; font-weight:500; color:var(--ink); padding:.6rem; }
-.qb-note-text::placeholder{ color:rgba(20,18,16,.45); }
+.qb-note-grip{ flex:1; font-family:var(--font-mono); font-weight:700; font-size:.7rem; letter-spacing:1px; text-transform:uppercase; color:var(--note-ink,var(--ink)); }
+.qb-note-more{ border:2px solid var(--note-ink,var(--ink)); background:transparent; color:var(--note-ink,var(--ink)); border-radius:var(--radius); width:1.5rem; height:1.5rem; font-weight:700; cursor:pointer; line-height:1; flex:none; }
+.qb-note .qb-connect{ border-color:var(--note-ink,var(--ink)); color:var(--note-ink,var(--ink)); }
+.qb-note-text{ flex:1; border:none; background:transparent; outline:none; font-family:inherit; font-weight:500; color:var(--note-ink,var(--ink)); padding:.6rem; overflow:auto; }
+.qb-note-text:empty:before{ content:attr(data-ph); opacity:.45; }
+.qb-note-text h1{ font-size:1.4rem; font-weight:800; margin:.15em 0; }
+.qb-note-text h2{ font-size:1.15rem; font-weight:800; margin:.15em 0; }
+.qb-note-text h3{ font-size:1rem; font-weight:700; margin:.15em 0; }
+.qb-note-text ul{ padding-left:1.2rem; list-style:disc; margin:.2em 0; }
+.qb-note-text ol{ padding-left:1.3rem; list-style:decimal; margin:.2em 0; }
+.qb-note-text p{ margin:.2em 0; }
+
+/* note formatting toolbar */
+.note-fmt{ position:fixed; z-index:1200; display:none; gap:.2rem; align-items:center; background:var(--bg); border:var(--border-w) solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow); padding:.3rem; flex-wrap:wrap; max-width:94vw; }
+.note-fmt.show{ display:flex; }
+.note-fmt button{ border:2px solid var(--ink); background:var(--bg); color:var(--ink); border-radius:var(--radius); min-width:1.9rem; height:1.9rem; font-family:inherit; font-weight:700; font-size:.8rem; cursor:pointer; padding:0 .35rem; line-height:1; }
+.note-fmt button sup{ font-size:.6em; }
+.note-fmt button:hover{ background:var(--ink); color:var(--bg); }
+.note-fmt .nf-sep{ width:2px; height:1.3rem; background:var(--ink); opacity:.25; }
+.note-fmt .nf-color{ width:1.6rem; min-width:1.6rem; padding:0; }
+.note-fmt .nf-color.custom{ position:relative; overflow:hidden; background:conic-gradient(#E5484D,#F2C200,#2FA84F,#14B8C4,#234BFF,#E255A1,#E5484D); }
+.note-fmt .nf-color.custom input{ position:absolute; inset:-6px; opacity:0; cursor:pointer; border:none; }
+
+/* custom swatch in colour menus */
+.ctx-colors .csw-custom{ position:relative; overflow:hidden; background:conic-gradient(#E5484D,#F2C200,#2FA84F,#14B8C4,#234BFF,#E255A1,#E5484D); }
+.ctx-colors .csw-custom input{ position:absolute; inset:-6px; opacity:0; cursor:pointer; border:none; padding:0; }
+.ctx-shapes{ display:flex; gap:.3rem; padding:.5rem; border-bottom:2px solid var(--ink); }
+.ctx-shapes button{ flex:1; border:2px solid var(--ink); background:var(--bg); border-radius:var(--radius); height:2rem; font-size:1.1rem; cursor:pointer; color:var(--ink); }
+.ctx-shapes button:hover{ background:var(--ink); color:var(--bg); }
+.qb-addlist-btn.ghost{ background:var(--bg-2); color:var(--ink); }
+
+/* selection + marquee */
+.qb-list.selected, .qb-note.selected, .qb-title.selected{ outline:3px solid var(--accent); outline-offset:3px; }
+.qb-marquee{ position:absolute; border:2px dashed var(--accent); background:color-mix(in srgb, var(--accent) 14%, transparent); z-index:30; pointer-events:none; border-radius:4px; }
+
+/* TITLE containers */
+.qb-title{ position:absolute; }
+.qb-title-shape{ position:absolute; inset:0; background:var(--title-accent,#234BFF); border:var(--border-w) solid var(--ink); border-radius:var(--radius); }
+.qb-title.shape-circle .qb-title-shape{ border-radius:50%; }
+svg.qb-title-shape{ border:none; background:transparent; overflow:visible; }
+.qb-title-body{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:1rem; gap:.25rem; }
+.qb-title.shape-triangle .qb-title-body{ justify-content:flex-end; padding-bottom:9%; }
+.qb-title.shape-circle .qb-title-body{ padding:14%; }
+.qb-title-text{ font-size:var(--title-fs,1.7rem); font-weight:800; line-height:1.1; letter-spacing:-.5px; color:var(--title-ink,#fff); outline:none; max-width:100%; }
+.qb-title-sub{ font-size:var(--title-subfs,.85rem); font-weight:600; color:var(--title-ink,#fff); opacity:.88; outline:none; max-width:100%; }
+.qb-title-text:empty:before, .qb-title-sub:empty:before{ content:attr(data-ph); opacity:.5; }
+
+/* section shapes (background layer) */
+.qb-shape{ position:absolute; pointer-events:none; z-index:0; }
+.qb-shape-fill{ position:absolute; inset:0; border:var(--border-w) solid var(--ink); }
+.qb-shape.selected{ outline:3px solid var(--accent); outline-offset:4px; }
+.qb-shape-grip, .qb-shape-more{ position:absolute; top:6px; width:1.7rem; height:1.7rem; border:2px solid var(--ink); background:var(--bg); color:var(--ink); border-radius:var(--radius); pointer-events:auto; z-index:6; cursor:pointer; font-weight:700; line-height:1; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); }
+.qb-shape-grip{ left:6px; cursor:grab; }
+.qb-shape.dragging-list .qb-shape-grip{ cursor:grabbing; }
+.qb-shape-more{ left:38px; }
+.qb-shape .qb-resize{ pointer-events:auto; z-index:6; }
+.ctx-opacity{ padding:.5rem; border-bottom:2px solid var(--ink); display:flex; flex-direction:column; gap:.3rem; }
+.ctx-opacity input{ width:100%; accent-color:var(--accent); }
+.qb-title-grip{ position:absolute; left:6px; top:6px; width:1.5rem; height:1.5rem; border:2px solid var(--title-ink,#fff); border-radius:var(--radius); color:var(--title-ink,#fff); display:flex; align-items:center; justify-content:center; cursor:grab; font-weight:700; font-size:.8rem; z-index:2; background:transparent; }
+.qb-title.dragging-list .qb-title-grip{ cursor:grabbing; }
+.qb-title-tools{ position:absolute; right:6px; top:6px; display:flex; gap:.25rem; z-index:2; }
+.qb-title-tools .qb-connect, .qb-title-more{ border:2px solid var(--title-ink,#fff); color:var(--title-ink,#fff); background:transparent; border-radius:var(--radius); width:1.5rem; height:1.5rem; font-weight:700; cursor:pointer; line-height:1; }
 
 /* arrows */
 .qb-arrows{ position:absolute; left:0; top:0; pointer-events:none; z-index:0; overflow:visible; }
@@ -843,7 +902,7 @@ body.board-active main{ padding:0; height:100vh; }
       <div class="qb-top">
         <button class="qb-back" id="qbBack" aria-label="Back to Quests">‹ Quests</button>
         <div class="qb-head">
-          <input class="qb-title" id="qbTitle" aria-label="Quest title">
+          <input class="qb-qtitle" id="qbTitle" aria-label="Quest title">
           <div class="qb-controls">
             <div class="qb-colors" id="qbColors" role="radiogroup" aria-label="Quest color"></div>
             <button class="qb-menu-btn" id="qbMenu" aria-label="Quest options">⋯</button>
@@ -864,8 +923,10 @@ body.board-active main{ padding:0; height:100vh; }
           <button class="due-pill" role="radio" data-due="tomorrow" aria-checked="false" tabindex="-1">Tomorrow</button>
         </div>
         <div class="qb-tools">
+          <button class="qb-addlist-btn" id="qbAddTitle">+ Title</button>
           <button class="qb-addlist-btn" id="qbAddNote">+ Note</button>
           <button class="qb-addlist-btn" id="qbAddList">+ Add list</button>
+          <button class="qb-addlist-btn ghost" id="qbBg" title="Board background">BG</button>
           <div class="qb-zoom">
             <button id="qbZoomOut" aria-label="Zoom out">−</button>
             <span id="qbZoomLabel">100%</span>
@@ -959,6 +1020,7 @@ body.board-active main{ padding:0; height:100vh; }
 </div>
 <div class="ctx-menu" id="noteMenu" role="menu">
   <div class="ctx-colors" id="noteColors"></div>
+  <button class="ctx-item" data-act="duplicate" role="menuitem">Duplicate note</button>
   <button class="ctx-item danger" data-act="remove" role="menuitem">Remove note</button>
 </div>
 <div class="ctx-menu" id="tabMenu" role="menu">
@@ -967,8 +1029,64 @@ body.board-active main{ padding:0; height:100vh; }
   <button class="ctx-item" data-act="duplicate" role="menuitem">Duplicate tab</button>
   <button class="ctx-item danger" data-act="remove" role="menuitem">Remove tab</button>
 </div>
+<div class="ctx-menu" id="titleMenu" role="menu">
+  <div class="ctx-shapes" id="titleShapes">
+    <button data-shape="rect" title="Rectangle">▭</button>
+    <button data-shape="circle" title="Circle">◯</button>
+    <button data-shape="triangle" title="Triangle">△</button>
+  </div>
+  <div class="ctx-colors" id="titleColors"></div>
+  <button class="ctx-item" data-act="duplicate" role="menuitem">Duplicate title</button>
+  <button class="ctx-item danger" data-act="remove" role="menuitem">Remove title</button>
+</div>
+<div class="ctx-menu" id="bgMenu" role="menu">
+  <div class="ctx-colors" id="bgColors"></div>
+  <button class="ctx-item" data-act="default" role="menuitem">Default (theme)</button>
+</div>
+<div class="ctx-menu" id="shapeMenu" role="menu">
+  <div class="ctx-shapes" id="shapeKinds">
+    <button data-kind="rect" title="Rectangle">▭</button>
+    <button data-kind="circle" title="Circle">◯</button>
+  </div>
+  <div class="ctx-colors" id="shapeColors"></div>
+  <div class="ctx-opacity"><span class="ctx-lock-label">Opacity</span><input type="range" id="shapeOpacity" min="5" max="100" value="50"></div>
+  <button class="ctx-item" data-act="duplicate" role="menuitem">Duplicate</button>
+  <button class="ctx-item danger" data-act="remove" role="menuitem">Remove</button>
+</div>
+<div class="ctx-menu" id="addMenu" role="menu">
+  <button class="ctx-item" data-add="list" role="menuitem">＋ List</button>
+  <button class="ctx-item" data-add="note" role="menuitem">＋ Note</button>
+  <button class="ctx-item" data-add="title" role="menuitem">＋ Title</button>
+  <button class="ctx-item" data-add="shape" role="menuitem">＋ Section box</button>
+</div>
+<div class="note-fmt" id="noteFmt" aria-label="Note formatting">
+  <button data-cmd="fontSize" data-val="2" title="Small text">A<sup>s</sup></button>
+  <button data-cmd="fontSize" data-val="4" title="Medium text">A</button>
+  <button data-cmd="fontSize" data-val="6" title="Large text">A<sup>L</sup></button>
+  <span class="nf-sep"></span>
+  <button data-cmd="bold" title="Bold"><b>B</b></button>
+  <button data-cmd="italic" title="Italic"><i>I</i></button>
+  <button data-cmd="underline" title="Underline"><u>U</u></button>
+  <span class="nf-sep"></span>
+  <button data-cmd="insertUnorderedList" title="Bulleted list">•≣</button>
+  <button data-cmd="insertOrderedList" title="Numbered list">1.≣</button>
+  <span class="nf-sep"></span>
+  <button data-cmd="formatBlock" data-val="H1" title="Heading 1">H1</button>
+  <button data-cmd="formatBlock" data-val="H2" title="Heading 2">H2</button>
+  <button data-cmd="formatBlock" data-val="H3" title="Heading 3">H3</button>
+  <button data-cmd="formatBlock" data-val="P" title="Normal text">¶</button>
+  <span class="nf-sep"></span>
+  <button class="nf-color" data-color="#141210" title="Black" style="background:#141210"></button>
+  <button class="nf-color" data-color="#FFFFFF" title="White" style="background:#FFFFFF"></button>
+  <button class="nf-color" data-color="#E5484D" title="Red" style="background:#E5484D"></button>
+  <button class="nf-color" data-color="#234BFF" title="Blue" style="background:#234BFF"></button>
+  <button class="nf-color" data-color="#2FA84F" title="Green" style="background:#2FA84F"></button>
+  <label class="nf-color custom" title="Custom text color"><input type="color" id="nfCustom"></label>
+</div>
 <div class="ctx-menu" id="qbMenuPop" role="menu">
   <button class="ctx-item" data-act="edit" role="menuitem">Edit details…</button>
+  <button class="ctx-item" data-act="png" role="menuitem">Export board · JPEG</button>
+  <button class="ctx-item" data-act="pdf" role="menuitem">Export board · PDF</button>
   <button class="ctx-item danger" data-act="delete" role="menuitem">Delete quest</button>
 </div>
 
@@ -1045,7 +1163,10 @@ function migrate(){
         if(!l.color){ l.color=b.color||q.color||"#234BFF"; changed=true; }
       });
       if(!Array.isArray(b.notes)){ b.notes=[]; changed=true; }
+      b.notes.forEach(n=>{ if(typeof n.html!=="string"){ n.html = n.text ? escapeHtml(n.text).replace(/\n/g,"<br>") : ""; changed=true; } });
       if(!Array.isArray(b.links)){ b.links=[]; changed=true; }
+      if(!Array.isArray(b.titles)){ b.titles=[]; changed=true; }
+      if(!Array.isArray(b.shapes)){ b.shapes=[]; changed=true; }
       if(!b.color){ b.color=q.color||"#234BFF"; changed=true; }
       if(!b.name){ b.name="Board"; changed=true; }
     });
@@ -1268,7 +1389,7 @@ smName.addEventListener("keydown", e=>{
   const name=smName.value.trim(); if(!name){ smName.focus(); return; }
   const bId=uid(), lId=uid();
   const q={ id:uid(), name, color:"#234BFF", category:"other", summary:"", image:"", createdAt:Date.now(),
-            boards:[{id:bId, name:"Board", color:"#234BFF", lists:[{id:lId,name:"Tasks",x:0,y:0,color:"#234BFF"}], notes:[], links:[]}], activeBoard:bId };
+            boards:[{id:bId, name:"Board", color:"#234BFF", lists:[{id:lId,name:"Tasks",x:0,y:0,color:"#234BFF"}], notes:[], links:[], titles:[]}], activeBoard:bId };
   state.quests.unshift(q);
   commitStaged(q.id);
   toast("List created");
@@ -1625,7 +1746,7 @@ function createQuestFromWizard(){
   const bId=uid(), lId=uid();
   const q={ id:uid(), name:wizData.name, color:wizData.color, category:wizData.category,
             summary:wizData.summary, image:wizData.image, createdAt:Date.now(),
-            boards:[{id:bId, name:"Board", color:wizData.color, lists:[{id:lId,name:"Tasks",x:0,y:0,color:wizData.color}], notes:[], links:[]}], activeBoard:bId };
+            boards:[{id:bId, name:"Board", color:wizData.color, lists:[{id:lId,name:"Tasks",x:0,y:0,color:wizData.color}], notes:[], links:[], titles:[]}], activeBoard:bId };
   state.quests.unshift(q);
   if(wizQueued.length){
     wizQueued.forEach(m=> state.missions.push({
@@ -1659,6 +1780,7 @@ questModal.addEventListener("keydown", e=>{
    ============================================================ */
 let boardQuestId=null, boardZoom=1, boardDue="hour", draggedCardId=null, listMenuId=null;
 let boardCanvasW=800, boardCanvasH=600, moveDrag=null, resizing=null, linkFrom=null;
+let selected=new Set(), marquee=null, titleMenuId=null;
 const GRID=28;
 function snap(v){ return Math.round(v/GRID)*GRID; }
 
@@ -1673,7 +1795,9 @@ function openQuestBoard(id){
 function renderQuestBoard(){
   const q=curQuest(); if(!q) return;
   const B=activeBoard(q); if(!B) return;
-  B.notes=B.notes||[]; B.links=B.links||[]; B.lists=B.lists||[];
+  if(typeof hideFmtToolbar==="function") hideFmtToolbar();
+  q.notes=q.notes||[]; q.links=q.links||[];
+  B.notes=B.notes||[]; B.links=B.links||[]; B.lists=B.lists||[]; B.titles=B.titles||[]; B.shapes=B.shapes||[];
   const titleEl=document.getElementById("qbTitle");
   if(document.activeElement!==titleEl) titleEl.value=q.name;
   const sumEl=document.getElementById("qbSummary");
@@ -1688,10 +1812,17 @@ function renderQuestBoard(){
   renderTabs(q);
   const board=document.getElementById("qbBoard");
   board.style.setProperty("--q-accent", q.color);
-  board.innerHTML = `<svg class="qb-arrows" id="qbArrows"></svg>` + B.lists.map(l=>listHTML(B,l)).join("") + B.notes.map(noteHTML).join("");
+  document.querySelector(".qb-scroll").style.backgroundColor = B.bg || "";
+  board.innerHTML = B.shapes.map(shapeHTML).join("")
+    + `<svg class="qb-arrows" id="qbArrows"></svg>`
+    + B.lists.map(l=>listHTML(B,l)).join("")
+    + B.notes.map(noteHTML).join("")
+    + B.titles.map(titleHTML).join("");
   let mx=600, my=420;
   B.lists.forEach(l=>{ mx=Math.max(mx,(l.x||0)+(l.w||290)+10); my=Math.max(my,(l.y||0)+(l.h||460)); });
   B.notes.forEach(n=>{ mx=Math.max(mx,(n.x||0)+(n.w||240)+10); my=Math.max(my,(n.y||0)+(n.h||160)); });
+  B.titles.forEach(t=>{ mx=Math.max(mx,(t.x||0)+(t.w||240)+10); my=Math.max(my,(t.y||0)+(t.h||160)); });
+  B.shapes.forEach(s=>{ mx=Math.max(mx,(s.x||0)+(s.w||320)+10); my=Math.max(my,(s.y||0)+(s.h||220)); });
   boardCanvasW=mx+340; boardCanvasH=my+120;
   wireBoard(q);
   applyZoom();
@@ -1711,7 +1842,7 @@ function listHTML(B,l){
   const locked=isLocked(B,l);
   const w=l.w||290;
   const hStyle = l.h ? `height:${l.h}px;` : '';
-  return `<div class="qb-list ${locked?'locked':''} ${linkFrom===l.id?'linking':''}" data-list="${l.id}" style="left:${l.x||0}px; top:${l.y||0}px; width:${w}px; ${hStyle} --list-accent:${color}">
+  return `<div class="qb-list ${locked?'locked':''} ${selCls(l.id)} ${linkFrom===l.id?'linking':''}" data-list="${l.id}" style="left:${l.x||0}px; top:${l.y||0}px; width:${w}px; ${hStyle} --list-accent:${color}">
     <div class="qb-list-head">
       <span class="qb-list-name" data-list="${l.id}" title="Drag to move · double-click to rename">${escapeHtml(l.name)}</span>
       <button class="qb-connect" data-conn="${l.id}" title="Draw arrow to another item" aria-label="Connect">⟿</button>
@@ -1724,14 +1855,54 @@ function listHTML(B,l){
   </div>`;
 }
 function noteHTML(n){
-  return `<div class="qb-note ${linkFrom===n.id?'linking':''}" data-note="${n.id}" style="left:${n.x||0}px; top:${n.y||0}px; width:${n.w||240}px; height:${n.h||160}px; --note-accent:${n.color||'#F2C200'}">
+  const ink=readableInk(n.color||'#F2C200');
+  return `<div class="qb-note ${selCls(n.id)} ${linkFrom===n.id?'linking':''}" data-note="${n.id}" style="left:${n.x||0}px; top:${n.y||0}px; width:${n.w||240}px; height:${n.h||160}px; --note-accent:${n.color||'#F2C200'}; --note-ink:${ink}">
     <div class="qb-note-head">
       <span class="qb-note-grip">≡ Note</span>
       <button class="qb-connect" data-conn="${n.id}" title="Draw arrow to another item" aria-label="Connect">⟿</button>
       <button class="qb-note-more" data-note="${n.id}" aria-label="Note options">⋯</button>
     </div>
-    <textarea class="qb-note-text" data-note="${n.id}" placeholder="Quick note…">${escapeHtml(n.text||'')}</textarea>
+    <div class="qb-note-text" contenteditable="true" data-note="${n.id}" data-ph="Quick note…">${n.html||''}</div>
     <span class="qb-resize" data-note="${n.id}" aria-hidden="true"></span>
+  </div>`;
+}
+function readableInk(hex){
+  const c=(hex||'').replace('#',''); if(c.length<6) return '#141210';
+  const r=parseInt(c.substr(0,2),16), g=parseInt(c.substr(2,2),16), b=parseInt(c.substr(4,2),16);
+  const L=(0.299*r+0.587*g+0.114*b)/255;
+  return L>0.62 ? '#141210' : '#FFFFFF';
+}
+function selCls(id){ return selected.has(id) ? 'selected' : ''; }
+function shapeHTML(s){
+  const op = (s.opacity==null ? 0.5 : s.opacity);
+  const r = s.kind==='circle' ? '50%' : 'var(--radius)';
+  return `<div class="qb-shape ${selCls(s.id)}" data-shape="${s.id}" style="left:${s.x||0}px; top:${s.y||0}px; width:${s.w||340}px; height:${s.h||240}px;">
+    <div class="qb-shape-fill" style="background:${s.color||'#8C73E8'}; opacity:${op}; border-radius:${r}"></div>
+    <button class="qb-shape-grip" data-shape="${s.id}" title="Drag section">✥</button>
+    <button class="qb-shape-more" data-shape="${s.id}" aria-label="Section options">⋯</button>
+    <span class="qb-resize" data-shape="${s.id}" aria-hidden="true"></span>
+  </div>`;
+}
+function titleHTML(t){
+  const color=t.color||'#234BFF', ink=readableInk(color);
+  const shape = t.shape || 'rect';
+  const fs=Math.max(13, Math.round((t.h||160)*0.17));
+  const subfs=Math.max(9, Math.round((t.h||160)*0.072));
+  const shapeEl = shape==='triangle'
+    ? `<svg class="qb-title-shape" viewBox="0 0 100 100" preserveAspectRatio="none"><polygon points="50,3 97,96 3,96" fill="${color}" stroke="var(--ink)" stroke-width="3" vector-effect="non-scaling-stroke"/></svg>`
+    : `<div class="qb-title-shape"></div>`;
+  return `<div class="qb-title shape-${shape} ${selCls(t.id)} ${linkFrom===t.id?'linking':''}" data-title="${t.id}" style="left:${t.x||0}px; top:${t.y||0}px; width:${t.w||240}px; height:${t.h||160}px; --title-accent:${color}; --title-ink:${ink}; --title-fs:${fs}px; --title-subfs:${subfs}px">
+    ${shapeEl}
+    <button class="qb-title-grip" data-title="${t.id}" title="Drag to move">≡</button>
+    <div class="qb-title-tools">
+      <button class="qb-connect" data-conn="${t.id}" title="Draw arrow" aria-label="Connect">⟿</button>
+      <button class="qb-title-more" data-title="${t.id}" aria-label="Title options">⋯</button>
+    </div>
+    <div class="qb-title-body">
+      <div class="qb-title-text" contenteditable="true" data-title="${t.id}" data-ph="Title">${escapeHtml(t.text||'')}</div>
+      <div class="qb-title-sub" contenteditable="true" data-titlesub="${t.id}" data-ph="add a subtitle…">${escapeHtml(t.sub||'')}</div>
+    </div>
+    <span class="qb-resize" data-title="${t.id}" aria-hidden="true"></span>
   </div>`;
 }
 function cardHTML(m){
@@ -1750,14 +1921,18 @@ function wireBoard(q){
   board.querySelectorAll(".qb-list-more").forEach(b=> b.addEventListener("click", e=>{
     e.stopPropagation(); const r=b.getBoundingClientRect(); openListMenu(b.dataset.list, r.right-180, r.bottom+4);
   }));
-  board.querySelectorAll(".qb-card-add").forEach(inp=> inp.addEventListener("keydown", e=>{
-    if(e.key!=="Enter") return; e.preventDefault();
-    const v=inp.value.trim(); if(!v) return;
-    const lid=inp.dataset.list;
-    addMissionToList(q.id, lid, v);
-    renderQuestBoard();
-    const again=document.querySelector(`.qb-card-add[data-list="${lid}"]`); if(again) again.focus();
-  }));
+  board.querySelectorAll(".qb-card-add").forEach(inp=>{
+    inp.addEventListener("focus", ()=> document.getElementById("qbDue").classList.add("show"));
+    inp.addEventListener("blur", ()=> setTimeout(()=>{ if(!document.activeElement || !document.activeElement.classList.contains("qb-card-add")) document.getElementById("qbDue").classList.remove("show"); }, 140));
+    inp.addEventListener("keydown", e=>{
+      if(e.key!=="Enter") return; e.preventDefault();
+      const v=inp.value.trim(); if(!v) return;
+      const lid=inp.dataset.list;
+      addMissionToList(q.id, lid, v);
+      renderQuestBoard();
+      const again=document.querySelector(`.qb-card-add[data-list="${lid}"]`); if(again) again.focus();
+    });
+  });
   board.querySelectorAll(".qb-card").forEach(card=>{
     card.querySelector(".qb-card-chk").addEventListener("click", e=>{
       e.stopPropagation();
@@ -1797,12 +1972,115 @@ function wireBoard(q){
       if(note) startMove(e, h.closest(".qb-note"), note);
     });
   });
-  board.querySelectorAll(".qb-note-text").forEach(t=> t.addEventListener("input", ()=>{
-    const n=B.notes.find(x=>x.id===t.dataset.note); if(n){ n.text=t.value; save(); }
-  }));
+  board.querySelectorAll(".qb-note-text").forEach(ed=>{
+    ed.addEventListener("input", ()=>{ const n=B.notes.find(x=>x.id===ed.dataset.note); if(n){ n.html=ed.innerHTML; save(); } });
+    ed.addEventListener("focus", ()=> showFmtToolbar(ed));
+    ed.addEventListener("blur", ()=> setTimeout(()=>{ if(document.activeElement!==ed && !noteFmt.contains(document.activeElement)) hideFmtToolbar(); }, 160));
+  });
   board.querySelectorAll(".qb-note-more").forEach(b=> b.addEventListener("click", e=>{
     e.stopPropagation(); const r=b.getBoundingClientRect(); openNoteMenu(b.dataset.note, r.right-180, r.bottom+4);
   }));
+  // titles
+  board.querySelectorAll(".qb-title-grip").forEach(g=> g.addEventListener("mousedown", e=>{
+    e.stopPropagation();
+    const t=B.titles.find(x=>x.id===g.dataset.title);
+    if(t) startMove(e, g.closest(".qb-title"), t);
+  }));
+  board.querySelectorAll(".qb-title-text").forEach(ed=> ed.addEventListener("input", ()=>{ const t=B.titles.find(x=>x.id===ed.dataset.title); if(t){ t.text=ed.innerText; save(); } }));
+  board.querySelectorAll(".qb-title-sub").forEach(ed=> ed.addEventListener("input", ()=>{ const t=B.titles.find(x=>x.id===ed.dataset.titlesub); if(t){ t.sub=ed.innerText; save(); } }));
+  board.querySelectorAll(".qb-title-more").forEach(b=> b.addEventListener("click", e=>{
+    e.stopPropagation(); const r=b.getBoundingClientRect(); openTitleMenu(b.dataset.title, r.right-180, r.bottom+4);
+  }));
+  // unified connect ports (lists + notes + titles) — query again to include titles
+  board.querySelectorAll(".qb-title .qb-connect").forEach(btn=> btn.addEventListener("click", e=>{
+    e.stopPropagation();
+    const id=btn.dataset.conn;
+    if(!linkFrom){ linkFrom=id; renderQuestBoard(); toast("Now click ⟿ on the target"); }
+    else if(linkFrom===id){ linkFrom=null; renderQuestBoard(); }
+    else { addLink(linkFrom, id); linkFrom=null; renderQuestBoard(); }
+  }));
+  // marquee selection on empty canvas
+  board.addEventListener("mousedown", startMarquee);
+  // section shapes
+  board.querySelectorAll(".qb-shape-grip").forEach(g=> g.addEventListener("mousedown", e=>{
+    e.stopPropagation();
+    const s=B.shapes.find(x=>x.id===g.dataset.shape);
+    if(s) startMove(e, g.closest(".qb-shape"), s);
+  }));
+  board.querySelectorAll(".qb-shape-more").forEach(b=> b.addEventListener("click", e=>{
+    e.stopPropagation(); const r=b.getBoundingClientRect(); openShapeMenu(b.dataset.shape, r.right-180, r.bottom+4);
+  }));
+  // double-click empty space to add
+  board.addEventListener("dblclick", e=>{
+    if(e.target.closest(".qb-list, .qb-note, .qb-title, .qb-shape")) return;
+    const rect=board.getBoundingClientRect();
+    const bx=snap((e.clientX-rect.left)/boardZoom), by=snap((e.clientY-rect.top)/boardZoom);
+    openAddMenu(e.clientX, e.clientY, bx, by);
+  });
+}
+function startMarquee(e){
+  if(e.button!==0) return;
+  // only when clicking the empty board (or the arrows svg), not an item or handle
+  if(e.target.closest(".qb-list, .qb-note, .qb-title")) return;
+  const board=document.getElementById("qbBoard");
+  const rect=board.getBoundingClientRect();
+  const sx=(e.clientX-rect.left)/boardZoom, sy=(e.clientY-rect.top)/boardZoom;
+  const box=document.createElement("div"); box.className="qb-marquee"; board.appendChild(box);
+  marquee={ sx, sy, cx:sx, cy:sy, box, moved:false };
+  document.addEventListener("mousemove", onMarquee);
+  document.addEventListener("mouseup", endMarquee);
+  e.preventDefault();
+}
+function onMarquee(e){
+  if(!marquee) return;
+  const board=document.getElementById("qbBoard"); const rect=board.getBoundingClientRect();
+  marquee.cx=(e.clientX-rect.left)/boardZoom; marquee.cy=(e.clientY-rect.top)/boardZoom;
+  if(Math.abs(marquee.cx-marquee.sx)>3 || Math.abs(marquee.cy-marquee.sy)>3) marquee.moved=true;
+  const x=Math.min(marquee.sx,marquee.cx), y=Math.min(marquee.sy,marquee.cy);
+  const w=Math.abs(marquee.cx-marquee.sx), h=Math.abs(marquee.cy-marquee.sy);
+  Object.assign(marquee.box.style, {left:x+"px", top:y+"px", width:w+"px", height:h+"px"});
+}
+function endMarquee(){
+  if(!marquee) return;
+  document.removeEventListener("mousemove", onMarquee);
+  document.removeEventListener("mouseup", endMarquee);
+  const { sx, sy, cx, cy, moved, box } = marquee;
+  box.remove(); marquee=null;
+  if(!moved){ if(selected.size){ selected.clear(); renderQuestBoard(); } return; }
+  const rx=Math.min(sx,cx), ry=Math.min(sy,cy), rw=Math.abs(cx-sx), rh=Math.abs(cy-sy);
+  const board=document.getElementById("qbBoard");
+  selected.clear();
+  board.querySelectorAll(".qb-list, .qb-note, .qb-title, .qb-shape").forEach(el=>{
+    const ix=el.offsetLeft, iy=el.offsetTop, iw=el.offsetWidth, ih=el.offsetHeight;
+    if(ix < rx+rw && ix+iw > rx && iy < ry+rh && iy+ih > ry){
+      const id=el.dataset.list||el.dataset.note||el.dataset.title||el.dataset.shape; if(id) selected.add(id);
+    }
+  });
+  renderQuestBoard();
+  if(selected.size) toast(selected.size+" selected · drag to move, Del to remove");
+}
+function collectSelected(){
+  const B=curBoard(); const out=[];
+  const push=(arr,sel)=>{ arr.forEach(o=>{ if(selected.has(o.id)){ const el=document.querySelector(sel+`="${o.id}"]`); if(el) out.push({obj:o, el, ox:o.x||0, oy:o.y||0}); } }); };
+  push(B.lists, ".qb-list[data-list"); push(B.notes, ".qb-note[data-note"); push(B.titles, ".qb-title[data-title"); push(B.shapes, ".qb-shape[data-shape");
+  return out;
+}
+function deleteSelected(){
+  if(!selected.size) return;
+  const q=curQuest(), B=curBoard(); if(!B) return;
+  const ids=selected;
+  const removedListIds=B.lists.filter(l=>ids.has(l.id)).map(l=>l.id);
+  if(removedListIds.length){
+    state.missions=state.missions.filter(m=>!(m.questId===q.id && removedListIds.includes(m.listId)));
+  }
+  B.lists=B.lists.filter(l=>!ids.has(l.id));
+  B.lists.forEach(l=>{ if(l.lockedUntil && ids.has(l.lockedUntil)) l.lockedUntil=null; });
+  B.notes=B.notes.filter(n=>!ids.has(n.id));
+  B.titles=B.titles.filter(t=>!ids.has(t.id));
+  B.shapes=(B.shapes||[]).filter(s=>!ids.has(s.id));
+  B.links=(B.links||[]).filter(l=>!ids.has(l.from) && !ids.has(l.to));
+  const n=selected.size; selected.clear();
+  save(); renderQuestBoard(); renderQuests(); toast(n+" item"+(n>1?"s":"")+" removed");
 }
 function startRename(span){
   const B=curBoard(); if(!B) return;
@@ -1820,11 +2098,13 @@ function addMissionToList(questId, listId, title){
     createdAt:Date.now(), modifiedAt:Date.now(), done:false, priority:false, location:"", amount:0, color:q?q.color:"#234BFF" });
   save(); renderQuests();
 }
-function addList(questId){
+function addList(questId, x, y){
   const q=state.quests.find(x=>x.id===questId); if(!q) return;
   const B=activeBoard(q); if(!B) return;
-  let maxRight=0; B.lists.forEach(l=> maxRight=Math.max(maxRight,(l.x||0)+308));
-  const nl={id:uid(), name:"New list", color:B.color||q.color, x:snap(maxRight), y:0};
+  let nx, ny;
+  if(x!=null){ nx=snap(x); ny=snap(y); }
+  else { let maxRight=0; B.lists.forEach(l=> maxRight=Math.max(maxRight,(l.x||0)+308)); nx=snap(maxRight); ny=0; }
+  const nl={id:uid(), name:"New list", color:B.color||q.color, x:nx, y:ny};
   B.lists.push(nl);
   save(); renderQuestBoard();
   setTimeout(()=>{ const span=document.querySelector(`.qb-list-name[data-list="${nl.id}"]`); if(span) startRename(span); },40);
@@ -1845,30 +2125,41 @@ function moveCard(id, targetListId, e){
   save(); renderQuestBoard(); renderQuests();
 }
 
-/* generic move (lists + notes) -> snap to grid */
+/* generic move (lists + notes + titles), group-aware -> snap to grid */
 function startMove(e, el, obj){
-  moveDrag={ el, obj, sx:e.clientX, sy:e.clientY, ox:obj.x||0, oy:obj.y||0, nx:obj.x||0, ny:obj.y||0 };
-  el.classList.add("dragging-list");
+  let group;
+  if(selected.has(obj.id) && selected.size>1){
+    group=collectSelected();
+  } else {
+    if(selected.size){ document.querySelectorAll(".qb-list.selected,.qb-note.selected,.qb-title.selected,.qb-shape.selected").forEach(x=>x.classList.remove("selected")); selected.clear(); }
+    group=[{obj, el, ox:obj.x||0, oy:obj.y||0}];
+  }
+  moveDrag={ sx:e.clientX, sy:e.clientY, group };
+  group.forEach(g=> g.el.classList.add("dragging-list"));
   document.addEventListener("mousemove", onMove);
   document.addEventListener("mouseup", endMove);
   e.preventDefault();
 }
 function onMove(e){
   if(!moveDrag) return;
-  let nx=Math.max(0, moveDrag.ox+(e.clientX-moveDrag.sx)/boardZoom);
-  let ny=Math.max(0, moveDrag.oy+(e.clientY-moveDrag.sy)/boardZoom);
-  moveDrag.nx=nx; moveDrag.ny=ny;
-  moveDrag.el.style.left=nx+"px"; moveDrag.el.style.top=ny+"px";
+  const dx=(e.clientX-moveDrag.sx)/boardZoom, dy=(e.clientY-moveDrag.sy)/boardZoom;
+  moveDrag.group.forEach(g=>{
+    g.nx=Math.max(0, g.ox+dx); g.ny=Math.max(0, g.oy+dy);
+    g.el.style.left=g.nx+"px"; g.el.style.top=g.ny+"px";
+  });
   drawArrows();
 }
 function endMove(){
   if(!moveDrag) return;
   document.removeEventListener("mousemove", onMove);
   document.removeEventListener("mouseup", endMove);
-  const nx=snap(moveDrag.nx), ny=snap(moveDrag.ny);
-  const moved = nx!==moveDrag.ox || ny!==moveDrag.oy;
-  moveDrag.obj.x=nx; moveDrag.obj.y=ny;
-  moveDrag.el.classList.remove("dragging-list");
+  let moved=false;
+  moveDrag.group.forEach(g=>{
+    const nx=snap(g.nx!=null?g.nx:g.ox), ny=snap(g.ny!=null?g.ny:g.oy);
+    if(nx!==g.ox||ny!==g.oy) moved=true;
+    g.obj.x=nx; g.obj.y=ny;
+    g.el.classList.remove("dragging-list");
+  });
   moveDrag=null;
   if(moved){ save(); renderQuestBoard(); }
 }
@@ -1878,7 +2169,9 @@ function startResize(e, h){
   const B=curBoard(); if(!B) return;
   let obj, el, type;
   if(h.dataset.list){ type="list"; obj=B.lists.find(l=>l.id===h.dataset.list); el=h.closest(".qb-list"); }
-  else { type="note"; obj=B.notes.find(n=>n.id===h.dataset.note); el=h.closest(".qb-note"); }
+  else if(h.dataset.note){ type="note"; obj=B.notes.find(n=>n.id===h.dataset.note); el=h.closest(".qb-note"); }
+  else if(h.dataset.shape){ type="shape"; obj=B.shapes.find(s=>s.id===h.dataset.shape); el=h.closest(".qb-shape"); }
+  else { type="title"; obj=B.titles.find(t=>t.id===h.dataset.title); el=h.closest(".qb-title"); }
   if(!obj) return;
   resizing={ obj, el, type, sx:e.clientX, sy:e.clientY, ow:el.offsetWidth, oh:el.offsetHeight, nw:el.offsetWidth, nh:el.offsetHeight };
   document.addEventListener("mousemove", onResizeMove);
@@ -1891,6 +2184,10 @@ function onResizeMove(e){
   let nh=Math.max(minH, resizing.oh+(e.clientY-resizing.sy)/boardZoom);
   resizing.nw=nw; resizing.nh=nh;
   resizing.el.style.width=nw+"px"; resizing.el.style.height=nh+"px";
+  if(resizing.type==="title"){
+    resizing.el.style.setProperty("--title-fs", Math.max(13,Math.round(nh*0.17))+"px");
+    resizing.el.style.setProperty("--title-subfs", Math.max(9,Math.round(nh*0.072))+"px");
+  }
   drawArrows();
 }
 function endResize(){
@@ -1902,32 +2199,222 @@ function endResize(){
 }
 
 /* notes */
-function addNote(){
+function addNote(x, y){
   const B=curBoard(); if(!B) return;
   B.notes=B.notes||[];
-  let maxRight=20;
-  B.lists.forEach(l=> maxRight=Math.max(maxRight,(l.x||0)+(l.w||290)));
-  B.notes.forEach(n=> maxRight=Math.max(maxRight,(n.x||0)+(n.w||240)));
-  B.notes.push({ id:uid(), text:"", x:snap(maxRight+24), y:snap(20), w:240, h:160, color:"#F2C200" });
+  let nx, ny;
+  if(x!=null){ nx=snap(x); ny=snap(y); }
+  else { let maxRight=20; B.lists.forEach(l=> maxRight=Math.max(maxRight,(l.x||0)+(l.w||290))); B.notes.forEach(n=> maxRight=Math.max(maxRight,(n.x||0)+(n.w||240))); nx=snap(maxRight+24); ny=snap(20); }
+  B.notes.push({ id:uid(), html:"", x:nx, y:ny, w:240, h:160, color:"#FFFFFF" });
   save(); renderQuestBoard();
 }
+function addTitle(x, y){
+  const B=curBoard(); if(!B) return;
+  B.titles=B.titles||[];
+  let nx, ny;
+  if(x!=null){ nx=snap(x); ny=snap(y); }
+  else { let maxRight=20; B.lists.forEach(l=> maxRight=Math.max(maxRight,(l.x||0)+(l.w||290))); B.notes.forEach(n=> maxRight=Math.max(maxRight,(n.x||0)+(n.w||240))); B.titles.forEach(t=> maxRight=Math.max(maxRight,(t.x||0)+(t.w||240))); nx=snap(maxRight+24); ny=snap(20); }
+  B.titles.push({ id:uid(), text:"Title", sub:"add a subtitle", shape:"rect", x:nx, y:ny, w:260, h:160, color:"#234BFF" });
+  save(); renderQuestBoard();
+}
+function addShape(kind, x, y){
+  const B=curBoard(); if(!B) return;
+  B.shapes=B.shapes||[];
+  let nx, ny;
+  if(x!=null){ nx=snap(x); ny=snap(y); }
+  else { nx=snap(40); ny=snap(40); }
+  B.shapes.push({ id:uid(), kind:kind||"rect", x:nx, y:ny, w:360, h:260, color:"#8C73E8", opacity:0.35 });
+  save(); renderQuestBoard();
+}
+const TITLE_PALETTE=["#234BFF","#8C73E8","#E255A1","#E5484D","#F2851E","#F2C200","#2FA84F","#14B8C4","#FFFFFF","#141210"];
+const titleMenu=document.getElementById("titleMenu");
+const titleColors=document.getElementById("titleColors");
+function openTitleMenu(id,x,y){
+  titleMenuId=id;
+  const B=curBoard(); const t=B&&B.titles.find(z=>z.id===id);
+  titleColors.innerHTML=TITLE_PALETTE.map(c=>`<button class="csw" data-color="${c}" aria-checked="${t&&t.color===c}" style="background:${c}"></button>`).join("")
+    + `<label class="csw csw-custom" title="Custom color"><input type="color" value="${t?t.color:'#234BFF'}"></label>`;
+  titleMenu.querySelectorAll(".ctx-shapes button").forEach(b=> b.setAttribute("aria-checked", t&&(t.shape||'rect')===b.dataset.shape));
+  titleMenu.classList.add("show");
+  const w=titleMenu.offsetWidth||190,h=titleMenu.offsetHeight||170;
+  titleMenu.style.left=Math.max(8,Math.min(x,window.innerWidth-w-8))+"px";
+  titleMenu.style.top=Math.max(8,Math.min(y,window.innerHeight-h-8))+"px";
+}
+function closeTitleMenu(){ titleMenu.classList.remove("show"); }
+document.getElementById("titleShapes").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b) return; const B=curBoard(); const t=B&&B.titles.find(z=>z.id===titleMenuId); if(t){ t.shape=b.dataset.shape; save(); renderQuestBoard(); } });
+titleColors.addEventListener("click", e=>{ const s=e.target.closest(".csw:not(.csw-custom)"); if(!s) return; const B=curBoard(); const t=B&&B.titles.find(z=>z.id===titleMenuId); if(t){ t.color=s.dataset.color; save(); renderQuestBoard(); } closeTitleMenu(); });
+titleColors.addEventListener("input", e=>{ const inp=e.target.closest("input[type=color]"); if(!inp) return; const B=curBoard(); const t=B&&B.titles.find(z=>z.id===titleMenuId); if(t){ t.color=inp.value; save(); renderQuestBoard(); } });
+titleMenu.addEventListener("click", e=>{
+  const it=e.target.closest(".ctx-item"); if(!it) return;
+  const act=it.dataset.act, id=titleMenuId; closeTitleMenu();
+  const B=curBoard(); if(!B) return;
+  if(act==="duplicate"){
+    const t=B.titles.find(x=>x.id===id); if(!t) return;
+    B.titles.push(Object.assign({}, JSON.parse(JSON.stringify(t)), {id:uid(), x:snap((t.x||0)+GRID), y:snap((t.y||0)+GRID)}));
+    save(); renderQuestBoard(); toast("Title duplicated");
+  } else {
+    B.titles=B.titles.filter(t=>t.id!==id);
+    B.links=(B.links||[]).filter(l=>l.from!==id&&l.to!==id);
+    save(); renderQuestBoard(); toast("Title removed");
+  }
+});
+
+/* board background colour */
+const bgMenu=document.getElementById("bgMenu");
+const bgColors=document.getElementById("bgColors");
+const BG_PALETTE=["#EDEAE2","#F4ECE2","#E7EFE9","#E9ECF6","#F6E9EF","#1E1B18","#23303A","#2C2540","#FFFFFF","#141210"];
+function openBgMenu(x,y){
+  const B=curBoard();
+  bgColors.innerHTML=BG_PALETTE.map(c=>`<button class="csw" data-color="${c}" aria-checked="${B&&B.bg===c}" style="background:${c}"></button>`).join("")
+    + `<label class="csw csw-custom" title="Custom color"><input type="color" value="${B&&B.bg?B.bg:'#EDEAE2'}"></label>`;
+  bgMenu.classList.add("show");
+  const w=bgMenu.offsetWidth||190,h=bgMenu.offsetHeight||140;
+  bgMenu.style.left=Math.max(8,Math.min(x,window.innerWidth-w-8))+"px";
+  bgMenu.style.top=Math.max(8,Math.min(y,window.innerHeight-h-8))+"px";
+}
+function closeBgMenu(){ bgMenu.classList.remove("show"); }
+bgColors.addEventListener("click", e=>{ const s=e.target.closest(".csw:not(.csw-custom)"); if(!s) return; const B=curBoard(); if(B){ B.bg=s.dataset.color; save(); renderQuestBoard(); } closeBgMenu(); });
+bgColors.addEventListener("input", e=>{ const inp=e.target.closest("input[type=color]"); if(!inp) return; const B=curBoard(); if(B){ B.bg=inp.value; save(); renderQuestBoard(); } });
+bgMenu.addEventListener("click", e=>{ const it=e.target.closest(".ctx-item"); if(!it) return; const B=curBoard(); if(B){ B.bg=""; save(); renderQuestBoard(); } closeBgMenu(); });
+
+/* section shape menu */
+const shapeMenu=document.getElementById("shapeMenu");
+const shapeColors=document.getElementById("shapeColors");
+const shapeOpacity=document.getElementById("shapeOpacity");
+let shapeMenuId=null;
+const SHAPE_PALETTE=["#8C73E8","#234BFF","#14B8C4","#2FA84F","#F2C200","#F2851E","#E5484D","#E255A1","#FFFFFF","#141210"];
+function openShapeMenu(id,x,y){
+  shapeMenuId=id;
+  const B=curBoard(); const s=B&&B.shapes.find(z=>z.id===id);
+  shapeColors.innerHTML=SHAPE_PALETTE.map(c=>`<button class="csw" data-color="${c}" aria-checked="${s&&s.color===c}" style="background:${c}"></button>`).join("")
+    + `<label class="csw csw-custom" title="Custom color"><input type="color" value="${s?s.color:'#8C73E8'}"></label>`;
+  shapeMenu.querySelectorAll("#shapeKinds button").forEach(b=> b.setAttribute("aria-checked", s&&(s.kind||'rect')===b.dataset.kind));
+  shapeOpacity.value=Math.round((s&&s.opacity!=null?s.opacity:0.5)*100);
+  shapeMenu.classList.add("show");
+  const w=shapeMenu.offsetWidth||190,h=shapeMenu.offsetHeight||220;
+  shapeMenu.style.left=Math.max(8,Math.min(x,window.innerWidth-w-8))+"px";
+  shapeMenu.style.top=Math.max(8,Math.min(y,window.innerHeight-h-8))+"px";
+}
+function closeShapeMenu(){ shapeMenu.classList.remove("show"); }
+document.getElementById("shapeKinds").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b) return; const B=curBoard(); const s=B&&B.shapes.find(z=>z.id===shapeMenuId); if(s){ s.kind=b.dataset.kind; save(); renderQuestBoard(); } });
+shapeColors.addEventListener("click", e=>{ const sw=e.target.closest(".csw:not(.csw-custom)"); if(!sw) return; const B=curBoard(); const s=B&&B.shapes.find(z=>z.id===shapeMenuId); if(s){ s.color=sw.dataset.color; save(); renderQuestBoard(); } closeShapeMenu(); });
+shapeColors.addEventListener("input", e=>{ const inp=e.target.closest("input[type=color]"); if(!inp) return; const B=curBoard(); const s=B&&B.shapes.find(z=>z.id===shapeMenuId); if(s){ s.color=inp.value; save(); renderQuestBoard(); } });
+shapeOpacity.addEventListener("input", ()=>{ const B=curBoard(); const s=B&&B.shapes.find(z=>z.id===shapeMenuId); if(s){ s.opacity=shapeOpacity.value/100; const fill=document.querySelector(`.qb-shape[data-shape="${s.id}"] .qb-shape-fill`); if(fill) fill.style.opacity=s.opacity; } });
+shapeOpacity.addEventListener("change", ()=> save());
+shapeMenu.addEventListener("click", e=>{
+  const it=e.target.closest(".ctx-item"); if(!it) return;
+  const act=it.dataset.act, id=shapeMenuId; closeShapeMenu();
+  const B=curBoard(); if(!B) return;
+  if(act==="duplicate"){
+    const s=B.shapes.find(x=>x.id===id); if(!s) return;
+    B.shapes.push(Object.assign({}, JSON.parse(JSON.stringify(s)), {id:uid(), x:snap((s.x||0)+GRID), y:snap((s.y||0)+GRID)}));
+    save(); renderQuestBoard(); toast("Section duplicated");
+  } else {
+    B.shapes=B.shapes.filter(s=>s.id!==id); save(); renderQuestBoard(); toast("Section removed");
+  }
+});
+
+/* double-click add menu */
+const addMenu=document.getElementById("addMenu");
+let pendingAdd=null;
+function openAddMenu(sx, sy, bx, by){
+  pendingAdd={x:bx, y:by};
+  addMenu.classList.add("show");
+  const w=addMenu.offsetWidth||160,h=addMenu.offsetHeight||160;
+  addMenu.style.left=Math.max(8,Math.min(sx,window.innerWidth-w-8))+"px";
+  addMenu.style.top=Math.max(8,Math.min(sy,window.innerHeight-h-8))+"px";
+}
+function closeAddMenu(){ addMenu.classList.remove("show"); pendingAdd=null; }
+addMenu.addEventListener("click", e=>{
+  const it=e.target.closest(".ctx-item"); if(!it || !pendingAdd) return;
+  const kind=it.dataset.add, {x,y}=pendingAdd; closeAddMenu();
+  if(kind==="list") addList(boardQuestId, x, y);
+  else if(kind==="note") addNote(x, y);
+  else if(kind==="title") addTitle(x, y);
+  else if(kind==="shape") addShape("rect", x, y);
+});
+
 const noteMenu=document.getElementById("noteMenu");
 const noteColors=document.getElementById("noteColors");
 let noteMenuId=null;
-const NOTE_PALETTE=["#F2C200","#C4B2FF","#A9D2CE","#E0B8C3","#BFD3B0","#F2851E"];
+const NOTE_PALETTE=["#F2C200","#F2851E","#E5484D","#E255A1","#8C73E8","#234BFF","#2FA84F","#14B8C4","#FFFFFF","#141210"];
 function openNoteMenu(noteId,x,y){
   noteMenuId=noteId;
   const B=curBoard();
   const n=B && B.notes.find(z=>z.id===noteId);
-  noteColors.innerHTML=NOTE_PALETTE.map(c=>`<button class="csw" data-color="${c}" aria-checked="${n&&n.color===c}" style="background:${c}"></button>`).join("");
+  noteColors.innerHTML=NOTE_PALETTE.map(c=>`<button class="csw" data-color="${c}" aria-checked="${n&&n.color===c}" style="background:${c}"></button>`).join("")
+    + `<label class="csw csw-custom" title="Custom color"><input type="color" value="${n?n.color:'#F2C200'}"></label>`;
   noteMenu.classList.add("show");
   const w=noteMenu.offsetWidth||180,h=noteMenu.offsetHeight||110;
   noteMenu.style.left=Math.max(8,Math.min(x,window.innerWidth-w-8))+"px";
   noteMenu.style.top=Math.max(8,Math.min(y,window.innerHeight-h-8))+"px";
 }
 function closeNoteMenu(){ noteMenu.classList.remove("show"); }
-noteColors.addEventListener("click", e=>{ const s=e.target.closest(".csw"); if(!s) return; const B=curBoard(); const n=B&&B.notes.find(z=>z.id===noteMenuId); if(n){ n.color=s.dataset.color; save(); renderQuestBoard(); } closeNoteMenu(); });
-noteMenu.addEventListener("click", e=>{ const it=e.target.closest(".ctx-item"); if(!it) return; closeNoteMenu(); const B=curBoard(); if(!B) return; B.notes=B.notes.filter(n=>n.id!==noteMenuId); B.links=(B.links||[]).filter(l=>l.from!==noteMenuId&&l.to!==noteMenuId); save(); renderQuestBoard(); toast("Note removed"); });
+noteColors.addEventListener("click", e=>{ const s=e.target.closest(".csw:not(.csw-custom)"); if(!s) return; const B=curBoard(); const n=B&&B.notes.find(z=>z.id===noteMenuId); if(n){ n.color=s.dataset.color; save(); renderQuestBoard(); } closeNoteMenu(); });
+noteColors.addEventListener("input", e=>{ const inp=e.target.closest("input[type=color]"); if(!inp) return; const B=curBoard(); const n=B&&B.notes.find(z=>z.id===noteMenuId); if(n){ n.color=inp.value; save(); renderQuestBoard(); } });
+noteMenu.addEventListener("click", e=>{
+  const it=e.target.closest(".ctx-item"); if(!it) return;
+  const act=it.dataset.act, id=noteMenuId; closeNoteMenu();
+  const B=curBoard(); if(!B) return;
+  if(act==="duplicate"){
+    const n=B.notes.find(x=>x.id===id); if(!n) return;
+    B.notes.push(Object.assign({}, JSON.parse(JSON.stringify(n)), {id:uid(), x:snap((n.x||0)+GRID), y:snap((n.y||0)+GRID)}));
+    save(); renderQuestBoard(); toast("Note duplicated");
+  } else {
+    B.notes=B.notes.filter(n=>n.id!==id);
+    B.links=(B.links||[]).filter(l=>l.from!==id&&l.to!==id);
+    save(); renderQuestBoard(); toast("Note removed");
+  }
+});
+
+/* rich-text formatting toolbar for notes */
+const noteFmt=document.getElementById("noteFmt");
+let fmtEditor=null, savedRange=null;
+function showFmtToolbar(ed){ fmtEditor=ed; noteFmt.classList.add("show"); positionFmtToolbar(); }
+function hideFmtToolbar(){ noteFmt.classList.remove("show"); fmtEditor=null; }
+function positionFmtToolbar(){
+  if(!fmtEditor || !noteFmt.classList.contains("show")) return;
+  const host=fmtEditor.closest(".qb-note")||fmtEditor;
+  const r=host.getBoundingClientRect();
+  const w=noteFmt.offsetWidth, h=noteFmt.offsetHeight;
+  let top=r.top-h-8; if(top<8) top=Math.min(r.bottom+8, window.innerHeight-h-8);
+  let left=Math.max(8, Math.min(r.left, window.innerWidth-w-8));
+  noteFmt.style.left=left+"px"; noteFmt.style.top=top+"px";
+}
+function saveNoteHtml(){ if(!fmtEditor) return; const B=curBoard(); const n=B&&B.notes.find(x=>x.id===fmtEditor.dataset.note); if(n){ n.html=fmtEditor.innerHTML; save(); } }
+function runFmt(cmd, val){
+  if(!fmtEditor) return;
+  fmtEditor.focus(); restoreRange();
+  try{ document.execCommand("styleWithCSS", false, true); }catch(_){}
+  if(cmd==="formatBlock") document.execCommand("formatBlock", false, "<"+String(val).toLowerCase()+">");
+  else if(cmd==="fontSize") document.execCommand("fontSize", false, val);
+  else document.execCommand(cmd, false, null);
+  saveNoteHtml(); positionFmtToolbar();
+}
+function applyFmtColor(color){
+  if(!fmtEditor) return;
+  fmtEditor.focus(); restoreRange();
+  try{ document.execCommand("styleWithCSS", false, true); }catch(_){}
+  document.execCommand("foreColor", false, color);
+  saveNoteHtml();
+}
+function restoreRange(){ if(savedRange){ const s=window.getSelection(); s.removeAllRanges(); s.addRange(savedRange); } }
+document.addEventListener("selectionchange", ()=>{
+  if(!fmtEditor) return;
+  const s=window.getSelection();
+  if(s.rangeCount && fmtEditor.contains(s.anchorNode)) savedRange=s.getRangeAt(0).cloneRange();
+});
+noteFmt.querySelectorAll("button[data-cmd]").forEach(btn=>{
+  btn.addEventListener("mousedown", e=> e.preventDefault());
+  btn.addEventListener("click", ()=> runFmt(btn.dataset.cmd, btn.dataset.val));
+});
+noteFmt.querySelectorAll("button.nf-color[data-color]").forEach(btn=>{
+  btn.addEventListener("mousedown", e=> e.preventDefault());
+  btn.addEventListener("click", ()=> applyFmtColor(btn.dataset.color));
+});
+document.getElementById("nfCustom").addEventListener("input", e=> applyFmtColor(e.target.value));
+window.addEventListener("resize", positionFmtToolbar);
+document.querySelector(".qb-scroll").addEventListener("scroll", positionFmtToolbar);
 
 /* arrows between any items (lists + notes) */
 function addLink(from, to){
@@ -1954,7 +2441,7 @@ function drawArrows(){
   const B=curBoard(); if(!B) return;
   const svg=document.getElementById("qbArrows"); if(!svg) return;
   svg.setAttribute("width", boardCanvasW); svg.setAttribute("height", boardCanvasH);
-  const rectOf=id=>{ const el=document.querySelector(`.qb-list[data-list="${id}"], .qb-note[data-note="${id}"]`); if(!el) return null; return {x:el.offsetLeft, y:el.offsetTop, w:el.offsetWidth, h:el.offsetHeight}; };
+  const rectOf=id=>{ const el=document.querySelector(`.qb-list[data-list="${id}"], .qb-note[data-note="${id}"], .qb-title[data-title="${id}"]`); if(!el) return null; return {x:el.offsetLeft, y:el.offsetTop, w:el.offsetWidth, h:el.offsetHeight}; };
   let out=`<defs><marker id="ah" markerWidth="12" markerHeight="12" refX="9" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 Z"/></marker></defs>`;
   (B.links||[]).forEach(lk=>{
     const a=rectOf(lk.from), b=rectOf(lk.to); if(!a||!b) return;
@@ -2048,7 +2535,7 @@ function wireTabs(q){
     const id=tab.dataset.board;
     tab.addEventListener("click", e=>{
       if(e.target.closest(".qb-tab-more") || e.target.closest(".qb-tab-rename")) return;
-      if(id!==q.activeBoard){ q.activeBoard=id; linkFrom=null; save(); renderQuestBoard(); }
+      if(id!==q.activeBoard){ q.activeBoard=id; linkFrom=null; selected.clear(); save(); renderQuestBoard(); }
     });
     tab.querySelector(".qb-tab-name").addEventListener("dblclick", e=>{ e.stopPropagation(); startTabRename(tab.querySelector(".qb-tab-name")); });
     tab.querySelector(".qb-tab-more").addEventListener("click", e=>{ e.stopPropagation(); const r=e.currentTarget.getBoundingClientRect(); openTabMenu(id, r.right-180, r.bottom+4); });
@@ -2060,8 +2547,8 @@ function wireTabs(q){
 }
 function addBoard(){
   const q=curQuest(); if(!q) return;
-  const b={ id:uid(), name:"Board "+(q.boards.length+1), color:q.color||"#234BFF", lists:[], notes:[], links:[] };
-  q.boards.push(b); q.activeBoard=b.id; linkFrom=null; save(); renderQuestBoard();
+  const b={ id:uid(), name:"Board "+(q.boards.length+1), color:q.color||"#234BFF", bg:"", lists:[], notes:[], links:[], titles:[], shapes:[] };
+  q.boards.push(b); q.activeBoard=b.id; linkFrom=null; selected.clear(); save(); renderQuestBoard();
 }
 function duplicateBoard(id){
   const q=curQuest(); if(!q) return;
@@ -2069,9 +2556,11 @@ function duplicateBoard(id){
   const idMap={};
   const lists=src.lists.map(l=>{ const nid=uid(); idMap[l.id]=nid; return Object.assign({},l,{id:nid}); });
   const notes=(src.notes||[]).map(n=>{ const nid=uid(); idMap[n.id]=nid; return Object.assign({},n,{id:nid}); });
+  const titles=(src.titles||[]).map(t=>{ const nid=uid(); idMap[t.id]=nid; return Object.assign({},t,{id:nid}); });
+  const shapes=(src.shapes||[]).map(s=>Object.assign({}, s, {id:uid()}));
   lists.forEach(l=>{ if(l.lockedUntil && idMap[l.lockedUntil]) l.lockedUntil=idMap[l.lockedUntil]; });
   const links=(src.links||[]).map(lk=>({id:uid(), from:idMap[lk.from]||lk.from, to:idMap[lk.to]||lk.to}));
-  const nb={ id:uid(), name:src.name+" (copy)", color:src.color, lists, notes, links };
+  const nb={ id:uid(), name:src.name+" (copy)", color:src.color, bg:src.bg||"", lists, notes, titles, shapes, links };
   src.lists.forEach(l=>{ state.missions.filter(m=>m.questId===q.id&&m.listId===l.id).forEach(m=>{ const c=JSON.parse(JSON.stringify(m)); c.id=uid(); c.listId=idMap[l.id]; c.createdAt=Date.now(); c.modifiedAt=Date.now(); state.missions.push(c); }); });
   q.boards.splice(q.boards.indexOf(src)+1,0,nb); q.activeBoard=nb.id; save(); renderQuestBoard(); renderQuests(); toast("Tab duplicated");
 }
@@ -2135,6 +2624,8 @@ qbMenuPop.addEventListener("click", e=>{
   const it=e.target.closest(".ctx-item"); if(!it) return;
   const act=it.dataset.act; closeQbMenu();
   if(act==="edit"){ if(boardQuestId) openQuestModal({ questId:boardQuestId }); }
+  else if(act==="png"){ exportBoard("jpeg"); }
+  else if(act==="pdf"){ exportBoard("pdf"); }
   else if(act==="delete"){
     const id=boardQuestId;
     state.missions.forEach(m=>{ if(m.questId===id){ m.questId=null; m.listId=null; m.modifiedAt=Date.now(); } });
@@ -2142,6 +2633,76 @@ qbMenuPop.addEventListener("click", e=>{
     save(); switchView("quests"); renderQuests(); renderMissions(); toast("Quest deleted · missions kept");
   }
 });
+
+/* ---- export board to JPEG / PDF (library-free) ---- */
+function exportBoard(kind){
+  const q=curQuest(), B=curBoard(); if(!q||!B){ return; }
+  const board=document.getElementById("qbBoard");
+  if(!board || (!B.lists.length && !B.notes.length && !B.titles.length)){ toast("Nothing on this board to export"); return; }
+  toast("Rendering board…");
+  // capture current theme variables
+  const cs=getComputedStyle(document.documentElement);
+  const vars=["--bg","--bg-2","--ink","--ink-soft","--accent","--accent-2","--accent-2d","--radius","--font-display","--font-mono","--scale","--border-w","--shadow","--shadow-sm"];
+  let varStr=vars.map(v=>`${v}:${cs.getPropertyValue(v).trim()}`).join(";");
+  const W=Math.ceil(boardCanvasW), H=Math.ceil(boardCanvasH);
+  const bg = B.bg || cs.getPropertyValue("--bg").trim() || "#EDEAE2";
+  // clone board, strip transform + handles
+  const clone=board.cloneNode(true);
+  clone.style.transform="none"; clone.style.left="0"; clone.style.top="0"; clone.style.width=W+"px"; clone.style.height=H+"px";
+  clone.querySelectorAll(".qb-resize,.qb-marquee").forEach(n=>n.remove());
+  clone.querySelectorAll(".selected").forEach(n=>n.classList.remove("selected"));
+  const styleText=Array.from(document.querySelectorAll("style")).map(s=>s.textContent).join("\n");
+  const gridImg="linear-gradient(rgba(20,18,16,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(20,18,16,.05) 1px,transparent 1px)";
+  const XHTML="http://www.w3.org/1999/xhtml";
+  const wrapper=document.createElementNS(XHTML,"div");
+  wrapper.setAttribute("style", `${varStr};width:${W}px;height:${H}px;background:${bg};background-image:${gridImg};background-size:28px 28px;position:relative;font-family:${cs.getPropertyValue('--font-display')};`);
+  wrapper.appendChild(clone);
+  const wrapperXml=new XMLSerializer().serializeToString(wrapper);
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><foreignObject x="0" y="0" width="${W}" height="${H}"><style xmlns="${XHTML}">/*<![CDATA[*/${styleText}/*]]>*/</style>${wrapperXml}</foreignObject></svg>`;
+  const scale=2;
+  const cv=document.createElement("canvas"); cv.width=W*scale; cv.height=H*scale;
+  const ctx=cv.getContext("2d");
+  const img=new Image();
+  img.onload=()=>{
+    try{
+      ctx.fillStyle=bg; ctx.fillRect(0,0,cv.width,cv.height);
+      ctx.drawImage(img,0,0,cv.width,cv.height);
+      const name=(q.name||"quest-board").replace(/[^a-z0-9]+/gi,"-").toLowerCase()+"-"+(B.name||"board").replace(/[^a-z0-9]+/gi,"-").toLowerCase();
+      const jpeg=cv.toDataURL("image/jpeg",0.92);
+      if(kind==="jpeg"){ downloadDataUrl(jpeg, name+".jpg"); toast("Board exported · JPEG"); }
+      else { const pdf=buildPdfFromJpeg(jpeg, W, H); downloadBlob(pdf, name+".pdf"); toast("Board exported · PDF"); }
+    }catch(err){ console.error(err); toast("Export failed — your browser blocked the canvas"); }
+  };
+  img.onerror=()=>{ toast("Export failed while rendering"); };
+  img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+}
+function downloadDataUrl(url, filename){ const a=document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); }
+function downloadBlob(blob, filename){ const url=URL.createObjectURL(blob); downloadDataUrl(url, filename); setTimeout(()=>URL.revokeObjectURL(url),1500); }
+function buildPdfFromJpeg(dataUrl, wpx, hpx){
+  const b64=dataUrl.split(",")[1];
+  const bin=atob(b64); const jpeg=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) jpeg[i]=bin.charCodeAt(i);
+  const wpt=+(wpx*72/96).toFixed(2), hpt=+(hpx*72/96).toFixed(2);
+  const enc=s=>{ const u=new Uint8Array(s.length); for(let i=0;i<s.length;i++) u[i]=s.charCodeAt(i)&0xff; return u; };
+  const parts=[]; let len=0; const offsets=[];
+  const push=chunk=>{ const u=(chunk instanceof Uint8Array)?chunk:enc(chunk); parts.push(u); len+=u.length; };
+  const mark=()=>offsets.push(len);
+  push("%PDF-1.4\n");
+  mark(); push("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n");
+  mark(); push("2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n");
+  mark(); push(`3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${wpt} ${hpt}] /Resources << /XObject << /Im0 5 0 R >> >> /Contents 4 0 R >>\nendobj\n`);
+  const content=`q\n${wpt} 0 0 ${hpt} 0 0 cm\n/Im0 Do\nQ\n`;
+  mark(); push(`4 0 obj\n<< /Length ${content.length} >>\nstream\n${content}endstream\nendobj\n`);
+  mark(); push(`5 0 obj\n<< /Type /XObject /Subtype /Image /Width ${wpx} /Height ${hpx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`);
+  push(jpeg); push("\nendstream\nendobj\n");
+  const xrefStart=len;
+  let xref="xref\n0 6\n0000000000 65535 f \n";
+  offsets.forEach(o=>{ xref += String(o).padStart(10,"0")+" 00000 n \n"; });
+  push(xref);
+  push(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`);
+  const out=new Uint8Array(len); let p=0; parts.forEach(u=>{ out.set(u,p); p+=u.length; });
+  return new Blob([out], {type:"application/pdf"});
+}
 
 /* top controls (bound once) */
 document.getElementById("qbBack").addEventListener("click", ()=> switchView("quests"));
@@ -2153,20 +2714,31 @@ const qbSummary=document.getElementById("qbSummary");
 qbSummary.addEventListener("input", ()=>{ autoGrow(qbSummary); const q=state.quests.find(x=>x.id===boardQuestId); if(q){ q.summary=qbSummary.value; save(); } });
 function autoGrow(t){ t.style.height="auto"; t.style.height=t.scrollHeight+"px"; }
 document.getElementById("qbColors").addEventListener("click", e=>{ const s=e.target.closest(".qb-swatch"); if(!s) return; const q=state.quests.find(x=>x.id===boardQuestId); if(!q) return; q.color=s.dataset.color; save(); renderQuestBoard(); renderQuests(); });
+document.getElementById("qbDue").addEventListener("mousedown", e=>{ if(e.target.closest(".due-pill")) e.preventDefault(); });
 document.getElementById("qbDue").addEventListener("click", e=>{ const o=e.target.closest(".due-pill"); if(!o) return; document.querySelectorAll("#qbDue .due-pill").forEach(p=>{p.setAttribute("aria-checked","false");p.tabIndex=-1;}); o.setAttribute("aria-checked","true"); o.tabIndex=0; boardDue=o.dataset.due; });
 document.getElementById("qbZoomIn").addEventListener("click", ()=>{ boardZoom=Math.min(1.4, +(boardZoom+0.1).toFixed(2)); applyZoom(); drawArrows(); });
 document.getElementById("qbZoomOut").addEventListener("click", ()=>{ boardZoom=Math.max(0.5, +(boardZoom-0.1).toFixed(2)); applyZoom(); drawArrows(); });
 document.getElementById("qbAddNote").addEventListener("click", ()=>{ if(boardQuestId) addNote(); });
+document.getElementById("qbAddTitle").addEventListener("click", ()=>{ if(boardQuestId) addTitle(); });
+document.getElementById("qbBg").addEventListener("click", e=>{ e.stopPropagation(); const r=e.currentTarget.getBoundingClientRect(); openBgMenu(r.left, r.bottom+4); });
 document.addEventListener("click", e=>{
   if(!listMenu.contains(e.target)) closeListMenu();
   if(!qbMenuPop.contains(e.target)) closeQbMenu();
   if(!noteMenu.contains(e.target)) closeNoteMenu();
   if(!tabMenu.contains(e.target)) closeTabMenu();
+  if(!titleMenu.contains(e.target)) closeTitleMenu();
+  if(!bgMenu.contains(e.target)) closeBgMenu();
+  if(!shapeMenu.contains(e.target)) closeShapeMenu();
+  if(!addMenu.contains(e.target)) closeAddMenu();
 });
 document.addEventListener("keydown", e=>{
   if(e.key==="Escape"){
-    closeListMenu(); closeQbMenu(); closeNoteMenu(); closeTabMenu();
+    closeListMenu(); closeQbMenu(); closeNoteMenu(); closeTabMenu(); closeTitleMenu(); closeBgMenu(); closeShapeMenu(); closeAddMenu();
     if(linkFrom){ linkFrom=null; if(boardQuestId) renderQuestBoard(); }
+    else if(selected.size){ selected.clear(); if(boardQuestId) renderQuestBoard(); }
+  } else if((e.key==="Delete"||e.key==="Backspace") && boardQuestId && selected.size){
+    const a=document.activeElement, editing = a && (a.isContentEditable || a.tagName==="INPUT" || a.tagName==="TEXTAREA");
+    if(!editing){ e.preventDefault(); deleteSelected(); }
   }
 });
 
