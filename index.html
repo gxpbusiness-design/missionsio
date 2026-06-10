@@ -790,6 +790,60 @@ header.topbar{ border-bottom:1px solid var(--glass-brd) !important; }
 .cap-card.chat .cap-inputrow{ border-top:1px solid var(--glass-brd) !important; }
 .wiz-head, .wiz-foot, .sheet-foot, .review-cover, .sheet-cover, .card .cover{ border-color:var(--glass-brd) !important; border-width:1px !important; }
 .switch, .mrow .chk, .swatch{ border-width:1px !important; border-color:var(--glass-brd) !important; }
+
+/* ---- BUTTON containers ---- */
+.qb-btn{ position:absolute; }
+.qb-btn-face{ width:100%; height:100%; display:flex; align-items:center; justify-content:space-between; gap:.5rem; padding:.7rem 1rem; border:1px solid var(--glass-brd); border-radius:var(--radius); background:var(--btn-accent,#234BFF); color:var(--btn-ink,#fff); font-family:var(--font-display); font-weight:700; font-size:1.05rem; cursor:pointer; box-shadow:var(--shadow-sm); -webkit-backdrop-filter:blur(var(--glass-blur)); backdrop-filter:blur(var(--glass-blur)); transition:transform .1s, box-shadow .1s; }
+.qb-btn-face:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
+.qb-btn-face:active{ transform:translateY(0); }
+.qb-btn-label{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.qb-btn-arrow{ flex:none; opacity:.9; font-size:1.2rem; }
+.qb-btn.selected{ outline:3px solid var(--accent); outline-offset:3px; border-radius:var(--radius); }
+.qb-btn-grip, .qb-btn-more{ position:absolute; top:-12px; width:1.6rem; height:1.6rem; border:1px solid var(--glass-brd); background:var(--glass-bg); color:var(--ink); border-radius:var(--radius); cursor:pointer; font-weight:700; line-height:1; z-index:5; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); -webkit-backdrop-filter:blur(var(--glass-blur)); backdrop-filter:blur(var(--glass-blur)); }
+.qb-btn-grip{ left:-10px; cursor:grab; }
+.qb-btn-more{ right:-10px; }
+.qb-btn.dragging-list .qb-btn-grip{ cursor:grabbing; }
+
+/* ---- TABLE containers ---- */
+.qb-table{ position:absolute; }
+.qb-table-grip, .qb-table-more{ position:absolute; top:-12px; width:1.6rem; height:1.6rem; border:1px solid var(--glass-brd); background:var(--glass-bg); color:var(--ink); border-radius:var(--radius); cursor:pointer; font-weight:700; line-height:1; z-index:5; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); -webkit-backdrop-filter:blur(var(--glass-blur)); backdrop-filter:blur(var(--glass-blur)); }
+.qb-table-grip{ right:34px; cursor:grab; }
+.qb-table-more{ right:6px; }
+.qb-table.dragging-list .qb-table-grip{ cursor:grabbing; }
+.qb-table.selected{ outline:3px solid var(--accent); outline-offset:4px; }
+.qb-table-wrap{ position:relative; border:1px solid var(--glass-brd); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow-sm); background:var(--glass-bg); -webkit-backdrop-filter:blur(var(--glass-blur)); backdrop-filter:blur(var(--glass-blur)); }
+.qb-table-grid{ display:grid; width:100%; height:100%; }
+.qb-tcell{ border-right:1px solid var(--glass-brd); border-bottom:1px solid var(--glass-brd); padding:.4rem .55rem; font-size:.9rem; color:var(--ink); outline:none; overflow:hidden; min-width:0; word-break:break-word; }
+.qb-tcell.head{ font-weight:700; background:color-mix(in srgb, var(--tbl-accent,#234BFF) 16%, transparent); }
+.qb-table-grid > .qb-tcell:nth-last-child(-n+1){ } /* noop */
+.qb-col-resize{ position:absolute; top:0; bottom:0; width:8px; margin-left:-4px; cursor:col-resize; z-index:4; }
+.qb-col-resize:hover{ background:color-mix(in srgb, var(--accent) 35%, transparent); }
+.qb-row-resize{ position:absolute; left:0; right:0; height:8px; margin-top:-4px; cursor:row-resize; z-index:4; }
+.qb-row-resize:hover{ background:color-mix(in srgb, var(--accent) 35%, transparent); }
+.qb-table-tools{ display:flex; gap:.35rem; margin-top:.4rem; }
+.qb-table-title{ font-family:var(--font-display); font-weight:700; font-size:1.05rem; letter-spacing:-.3px; color:var(--ink); padding:.1rem .15rem .35rem; outline:none; min-height:1.2em; }
+.qb-table-title:empty:before{ content:attr(data-ph); opacity:.45; }
+.qb-table-tools button{ border:1px solid var(--glass-brd); background:var(--glass-bg); color:var(--ink); border-radius:var(--radius); padding:.2rem .55rem; font-size:.78rem; font-weight:700; cursor:pointer; font-family:var(--font-mono); -webkit-backdrop-filter:blur(var(--glass-blur)); backdrop-filter:blur(var(--glass-blur)); }
+.qb-table-tools button:hover{ background:var(--accent); color:#fff; border-color:transparent; }
+
+/* link picker + flash */
+.ctx-field{ display:flex; flex-direction:column; gap:.25rem; padding:.5rem; border-bottom:1px solid var(--glass-brd); font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-soft); }
+.ctx-field input{ border:1px solid var(--glass-brd); border-radius:var(--radius); padding:.35rem .5rem; font-family:inherit; font-size:.85rem; color:var(--ink); background:var(--glass-bg2); text-transform:none; letter-spacing:0; font-weight:500; }
+.ctx-linkcur{ padding:.3rem .55rem; font-size:.72rem; color:var(--ink-soft); border-bottom:1px solid var(--glass-brd); }
+.link-picker{ position:fixed; inset:0; z-index:120; display:none; align-items:flex-start; justify-content:center; background:rgba(20,18,16,.35); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px); }
+.link-picker.show{ display:flex; }
+.link-picker-card{ margin-top:12vh; width:min(520px,92vw); max-height:64vh; display:flex; flex-direction:column; background:var(--glass-bg); border:1px solid var(--glass-brd); border-radius:calc(var(--radius) + 4px); box-shadow:var(--shadow); -webkit-backdrop-filter:blur(22px) saturate(1.4); backdrop-filter:blur(22px) saturate(1.4); overflow:hidden; }
+.link-picker-head{ display:flex; gap:.5rem; padding:.7rem; border-bottom:1px solid var(--glass-brd); }
+.link-picker-head input{ flex:1; border:1px solid var(--glass-brd); border-radius:var(--radius); padding:.5rem .7rem; font-family:inherit; font-size:1rem; color:var(--ink); background:var(--glass-bg2); }
+.link-picker-x{ border:1px solid var(--glass-brd); background:var(--glass-bg2); border-radius:var(--radius); width:2.2rem; cursor:pointer; color:var(--ink); font-weight:700; }
+.link-results{ overflow:auto; padding:.4rem; }
+.link-row{ display:flex; align-items:center; gap:.6rem; padding:.55rem .6rem; border-radius:var(--radius); cursor:pointer; }
+.link-row:hover, .link-row.active{ background:color-mix(in srgb, var(--accent) 16%, transparent); }
+.link-kind{ font-family:var(--font-mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; padding:.12rem .4rem; border-radius:var(--radius); background:var(--glass-bg2); border:1px solid var(--glass-brd); color:var(--ink-soft); flex:none; }
+.link-name{ font-weight:600; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.link-sub{ color:var(--ink-soft); font-size:.78rem; margin-left:auto; flex:none; }
+.qb-flash{ animation:qbflash 1.3s ease-out; }
+@keyframes qbflash{ 0%,100%{ box-shadow:0 0 0 0 transparent; } 20%{ box-shadow:0 0 0 5px color-mix(in srgb, var(--accent) 70%, transparent); } }
 </style>
 </head>
 <body>
@@ -1112,6 +1166,38 @@ header.topbar{ border-bottom:1px solid var(--glass-brd) !important; }
   <button class="ctx-item" data-add="note" role="menuitem">＋ Note</button>
   <button class="ctx-item" data-add="title" role="menuitem">＋ Title</button>
   <button class="ctx-item" data-add="shape" role="menuitem">＋ Section box</button>
+  <button class="ctx-item" data-add="button" role="menuitem">＋ Button</button>
+  <button class="ctx-item" data-add="table" role="menuitem">＋ Table</button>
+</div>
+<div class="ctx-menu" id="buttonMenu" role="menu">
+  <label class="ctx-field"><span>Label</span><input type="text" id="btnLabel" placeholder="Button text"></label>
+  <button class="ctx-item" data-act="link" role="menuitem">🔗 Link to…</button>
+  <div class="ctx-linkcur" id="btnLinkCur"></div>
+  <div class="ctx-colors" id="buttonColors"></div>
+  <button class="ctx-item" data-act="duplicate" role="menuitem">Duplicate</button>
+  <button class="ctx-item danger" data-act="remove" role="menuitem">Remove</button>
+</div>
+<div class="ctx-menu" id="tableMenu" role="menu">
+  <div class="ctx-colors" id="tableColors"></div>
+  <button class="ctx-item" data-act="duplicate" role="menuitem">Duplicate table</button>
+  <button class="ctx-item danger" data-act="remove" role="menuitem">Remove table</button>
+</div>
+<div class="ctx-menu" id="cellMenu" role="menu">
+  <button class="ctx-item" data-act="dup-row" role="menuitem">Duplicate row</button>
+  <button class="ctx-item" data-act="dup-col" role="menuitem">Duplicate column</button>
+  <button class="ctx-item" data-act="add-row" role="menuitem">Add row below</button>
+  <button class="ctx-item" data-act="add-col" role="menuitem">Add column right</button>
+  <button class="ctx-item danger" data-act="del-row" role="menuitem">Remove row</button>
+  <button class="ctx-item danger" data-act="del-col" role="menuitem">Remove column</button>
+</div>
+<div class="link-picker" id="linkPicker" role="dialog" aria-label="Link to">
+  <div class="link-picker-card">
+    <div class="link-picker-head">
+      <input type="text" id="linkSearch" placeholder="Search quests, lists, notes, titles…" autocomplete="off">
+      <button class="link-picker-x" id="linkPickerClose" aria-label="Close">✕</button>
+    </div>
+    <div class="link-results" id="linkResults"></div>
+  </div>
 </div>
 <div class="note-fmt" id="noteFmt" aria-label="Note formatting">
   <button data-cmd="fontSize" data-val="2" title="Small text">A<sup>s</sup></button>
@@ -1221,6 +1307,8 @@ function migrate(){
       if(!Array.isArray(b.links)){ b.links=[]; changed=true; }
       if(!Array.isArray(b.titles)){ b.titles=[]; changed=true; }
       if(!Array.isArray(b.shapes)){ b.shapes=[]; changed=true; }
+      if(!Array.isArray(b.buttons)){ b.buttons=[]; changed=true; }
+      if(!Array.isArray(b.tables)){ b.tables=[]; changed=true; }
       if(!b.color){ b.color=q.color||"#234BFF"; changed=true; }
       if(!b.name){ b.name="Board"; changed=true; }
     });
@@ -1851,7 +1939,7 @@ function renderQuestBoard(){
   const B=activeBoard(q); if(!B) return;
   if(typeof hideFmtToolbar==="function") hideFmtToolbar();
   q.notes=q.notes||[]; q.links=q.links||[];
-  B.notes=B.notes||[]; B.links=B.links||[]; B.lists=B.lists||[]; B.titles=B.titles||[]; B.shapes=B.shapes||[];
+  B.notes=B.notes||[]; B.links=B.links||[]; B.lists=B.lists||[]; B.titles=B.titles||[]; B.shapes=B.shapes||[]; B.buttons=B.buttons||[]; B.tables=B.tables||[];
   const titleEl=document.getElementById("qbTitle");
   if(document.activeElement!==titleEl) titleEl.value=q.name;
   const sumEl=document.getElementById("qbSummary");
@@ -1871,12 +1959,16 @@ function renderQuestBoard(){
     + `<svg class="qb-arrows" id="qbArrows"></svg>`
     + B.lists.map(l=>listHTML(B,l)).join("")
     + B.notes.map(noteHTML).join("")
-    + B.titles.map(titleHTML).join("");
+    + B.titles.map(titleHTML).join("")
+    + B.buttons.map(buttonHTML).join("")
+    + B.tables.map(tableHTML).join("");
   let mx=600, my=420;
   B.lists.forEach(l=>{ mx=Math.max(mx,(l.x||0)+(l.w||290)+10); my=Math.max(my,(l.y||0)+(l.h||460)); });
   B.notes.forEach(n=>{ mx=Math.max(mx,(n.x||0)+(n.w||240)+10); my=Math.max(my,(n.y||0)+(n.h||160)); });
   B.titles.forEach(t=>{ mx=Math.max(mx,(t.x||0)+(t.w||240)+10); my=Math.max(my,(t.y||0)+(t.h||160)); });
   B.shapes.forEach(s=>{ mx=Math.max(mx,(s.x||0)+(s.w||320)+10); my=Math.max(my,(s.y||0)+(s.h||220)); });
+  B.buttons.forEach(b=>{ mx=Math.max(mx,(b.x||0)+(b.w||200)+10); my=Math.max(my,(b.y||0)+(b.h||64)); });
+  B.tables.forEach(t=>{ const tw=(t.cols||[]).reduce((a,c)=>a+c,0), th=(t.rows||[]).reduce((a,r)=>a+r,0); mx=Math.max(mx,(t.x||0)+tw+10); my=Math.max(my,(t.y||0)+th+40); });
   boardCanvasW=mx+340; boardCanvasH=my+120;
   wireBoard(q);
   applyZoom();
@@ -1935,6 +2027,61 @@ function shapeHTML(s){
     <button class="qb-shape-grip" data-shape="${s.id}" title="Drag section">✥</button>
     <button class="qb-shape-more" data-shape="${s.id}" aria-label="Section options">⋯</button>
     <span class="qb-resize" data-shape="${s.id}" aria-hidden="true"></span>
+  </div>`;
+}
+function targetLabel(tg){
+  if(!tg||!tg.questId) return "Not linked";
+  const q=state.quests.find(x=>x.id===tg.questId); if(!q) return "Missing link";
+  if(tg.kind==="quest" || !tg.itemId) return "Quest · "+q.name;
+  const b=q.boards.find(x=>x.id===tg.boardId);
+  let nm="item";
+  if(b){
+    if(tg.kind==="list"){ const it=(b.lists||[]).find(z=>z.id===tg.itemId); nm=it?it.name:"list"; }
+    else if(tg.kind==="note"){ const it=(b.notes||[]).find(z=>z.id===tg.itemId); nm=it?(it.html||"").replace(/<[^>]+>/g," ").trim().slice(0,24)||"note":"note"; }
+    else if(tg.kind==="title"){ const it=(b.titles||[]).find(z=>z.id===tg.itemId); nm=it?it.text:"title"; }
+  }
+  return tg.kind.charAt(0).toUpperCase()+tg.kind.slice(1)+" · "+nm;
+}
+function buttonHTML(b){
+  const color=b.color||'#234BFF', ink=readableInk(color);
+  return `<div class="qb-btn ${selCls(b.id)}" data-btn="${b.id}" style="left:${b.x||0}px; top:${b.y||0}px; width:${b.w||200}px; height:${b.h||64}px; --btn-accent:${color}; --btn-ink:${ink}">
+    <button class="qb-btn-grip" data-btn="${b.id}" title="Drag">≡</button>
+    <button class="qb-btn-more" data-btn="${b.id}" aria-label="Button options">⋯</button>
+    <button class="qb-btn-face" data-btn="${b.id}">
+      <span class="qb-btn-label">${escapeHtml(b.label||"Go to…")}</span>
+      <span class="qb-btn-arrow">→</span>
+    </button>
+    <span class="qb-resize" data-btn="${b.id}" aria-hidden="true"></span>
+  </div>`;
+}
+function tableHTML(t){
+  const cols=t.cols||[160,160], rows=t.rows||[40,40];
+  const color=t.color||'#234BFF';
+  const totalW=cols.reduce((a,c)=>a+c,0), totalH=rows.reduce((a,r)=>a+r,0);
+  let cells="";
+  for(let r=0;r<rows.length;r++){
+    for(let c=0;c<cols.length;c++){
+      const val=(t.cells&&t.cells[r]&&t.cells[r][c]!=null)?t.cells[r][c]:"";
+      cells+=`<div class="qb-tcell ${r===0?'head':''}" data-table="${t.id}" data-r="${r}" data-c="${c}" contenteditable="true">${escapeHtml(val)}</div>`;
+    }
+  }
+  // boundary resize handles
+  let colH="", rowH="", acc=0;
+  for(let c=0;c<cols.length-1;c++){ acc+=cols[c]; colH+=`<span class="qb-col-resize" data-table="${t.id}" data-c="${c}" style="left:${acc}px"></span>`; }
+  acc=0;
+  for(let r=0;r<rows.length-1;r++){ acc+=rows[r]; rowH+=`<span class="qb-row-resize" data-table="${t.id}" data-r="${r}" style="top:${acc}px"></span>`; }
+  return `<div class="qb-table ${selCls(t.id)}" data-table="${t.id}" style="left:${t.x||0}px; top:${t.y||0}px; --tbl-accent:${color}">
+    <button class="qb-table-grip" data-table="${t.id}" title="Drag">≡</button>
+    <button class="qb-table-more" data-table="${t.id}" aria-label="Table options">⋯</button>
+    <div class="qb-table-title" data-table="${t.id}" contenteditable="true" data-ph="Table title" style="max-width:${totalW}px">${escapeHtml(t.title||"")}</div>
+    <div class="qb-table-wrap" style="width:${totalW}px; height:${totalH}px">
+      <div class="qb-table-grid" style="grid-template-columns:${cols.map(c=>c+'px').join(' ')}; grid-template-rows:${rows.map(r=>r+'px').join(' ')}">${cells}</div>
+      ${colH}${rowH}
+    </div>
+    <div class="qb-table-tools">
+      <button class="qb-table-addcol" data-table="${t.id}">＋ col</button>
+      <button class="qb-table-addrow" data-table="${t.id}">＋ row</button>
+    </div>
   </div>`;
 }
 function titleHTML(t){
@@ -2064,9 +2211,55 @@ function wireBoard(q){
   board.querySelectorAll(".qb-shape-more").forEach(b=> b.addEventListener("click", e=>{
     e.stopPropagation(); const r=b.getBoundingClientRect(); openShapeMenu(b.dataset.shape, r.right-180, r.bottom+4);
   }));
+  // buttons
+  board.querySelectorAll(".qb-btn-grip").forEach(g=> g.addEventListener("mousedown", e=>{
+    e.stopPropagation(); const b=B.buttons.find(x=>x.id===g.dataset.btn); if(b) startMove(e, g.closest(".qb-btn"), b);
+  }));
+  board.querySelectorAll(".qb-btn-more").forEach(b=> b.addEventListener("click", e=>{
+    e.stopPropagation(); const r=b.getBoundingClientRect(); openButtonMenu(b.dataset.btn, r.right-180, r.bottom+4);
+  }));
+  board.querySelectorAll(".qb-btn-face").forEach(f=> f.addEventListener("click", e=>{
+    e.stopPropagation(); const b=B.buttons.find(x=>x.id===f.dataset.btn); if(b) followButton(b);
+  }));
+  // tables
+  board.querySelectorAll(".qb-table-grip").forEach(g=> g.addEventListener("mousedown", e=>{
+    e.stopPropagation(); const t=B.tables.find(x=>x.id===g.dataset.table); if(t) startMove(e, g.closest(".qb-table"), t);
+  }));
+  board.querySelectorAll(".qb-table-more").forEach(b=> b.addEventListener("click", e=>{
+    e.stopPropagation(); const r=b.getBoundingClientRect(); openTableMenu(b.dataset.table, r.right-180, r.bottom+4);
+  }));
+  board.querySelectorAll(".qb-table").forEach(tb=> tb.addEventListener("contextmenu", e=>{
+    const cell=e.target.closest(".qb-tcell");
+    e.preventDefault(); e.stopPropagation();
+    if(cell) openCellMenu(cell.dataset.table, +cell.dataset.r, +cell.dataset.c, e.clientX, e.clientY);
+    else openTableMenu(tb.dataset.table, e.clientX, e.clientY);
+  }));
+  board.querySelectorAll(".qb-table-title").forEach(el=> el.addEventListener("input", ()=>{
+    const t=B.tables.find(x=>x.id===el.dataset.table); if(t){ t.title=el.innerText; save(); }
+  }));
+  board.querySelectorAll(".qb-tcell").forEach(c=> c.addEventListener("input", ()=>{
+    const t=B.tables.find(x=>x.id===c.dataset.table); if(!t) return;
+    const r=+c.dataset.r, ci=+c.dataset.c;
+    t.cells[r]=t.cells[r]||[]; t.cells[r][ci]=c.innerText; save();
+  }));
+  board.querySelectorAll(".qb-tcell").forEach(c=> c.addEventListener("keydown", e=>{
+    if(e.key!=="Enter" || e.shiftKey) return;
+    e.preventDefault();
+    const t=B.tables.find(x=>x.id===c.dataset.table); if(!t) return;
+    const cols=t.cols.length, rows=t.rows.length;
+    let r=+c.dataset.r, ci=+c.dataset.c+1;
+    if(ci>=cols){ ci=0; r++; }
+    if(r>=rows) return; // last cell: stay put
+    const next=board.querySelector(`.qb-tcell[data-table="${t.id}"][data-r="${r}"][data-c="${ci}"]`);
+    if(next){ next.focus(); const sel=window.getSelection(), rng=document.createRange(); rng.selectNodeContents(next); rng.collapse(false); sel.removeAllRanges(); sel.addRange(rng); }
+  }));
+  board.querySelectorAll(".qb-col-resize").forEach(h=> h.addEventListener("mousedown", e=>{ e.stopPropagation(); e.preventDefault(); startGridResize(e, h, "col"); }));
+  board.querySelectorAll(".qb-row-resize").forEach(h=> h.addEventListener("mousedown", e=>{ e.stopPropagation(); e.preventDefault(); startGridResize(e, h, "row"); }));
+  board.querySelectorAll(".qb-table-addcol").forEach(b=> b.addEventListener("click", e=>{ e.stopPropagation(); tableAddCol(b.dataset.table); }));
+  board.querySelectorAll(".qb-table-addrow").forEach(b=> b.addEventListener("click", e=>{ e.stopPropagation(); tableAddRow(b.dataset.table); }));
   // double-click empty space to add
   board.addEventListener("dblclick", e=>{
-    if(e.target.closest(".qb-list, .qb-note, .qb-title, .qb-shape")) return;
+    if(e.target.closest(".qb-list, .qb-note, .qb-title, .qb-shape, .qb-btn, .qb-table")) return;
     const rect=board.getBoundingClientRect();
     const bx=snap((e.clientX-rect.left)/boardZoom), by=snap((e.clientY-rect.top)/boardZoom);
     openAddMenu(e.clientX, e.clientY, bx, by);
@@ -2075,7 +2268,7 @@ function wireBoard(q){
 function startMarquee(e){
   if(e.button!==0) return;
   // only when clicking the empty board (or the arrows svg), not an item or handle
-  if(e.target.closest(".qb-list, .qb-note, .qb-title")) return;
+  if(e.target.closest(".qb-list, .qb-note, .qb-title, .qb-btn, .qb-table")) return;
   const board=document.getElementById("qbBoard");
   const rect=board.getBoundingClientRect();
   const sx=(e.clientX-rect.left)/boardZoom, sy=(e.clientY-rect.top)/boardZoom;
@@ -2104,10 +2297,10 @@ function endMarquee(){
   const rx=Math.min(sx,cx), ry=Math.min(sy,cy), rw=Math.abs(cx-sx), rh=Math.abs(cy-sy);
   const board=document.getElementById("qbBoard");
   selected.clear();
-  board.querySelectorAll(".qb-list, .qb-note, .qb-title, .qb-shape").forEach(el=>{
+  board.querySelectorAll(".qb-list, .qb-note, .qb-title, .qb-shape, .qb-btn, .qb-table").forEach(el=>{
     const ix=el.offsetLeft, iy=el.offsetTop, iw=el.offsetWidth, ih=el.offsetHeight;
     if(ix < rx+rw && ix+iw > rx && iy < ry+rh && iy+ih > ry){
-      const id=el.dataset.list||el.dataset.note||el.dataset.title||el.dataset.shape; if(id) selected.add(id);
+      const id=el.dataset.list||el.dataset.note||el.dataset.title||el.dataset.shape||el.dataset.btn||el.dataset.table; if(id) selected.add(id);
     }
   });
   renderQuestBoard();
@@ -2117,6 +2310,7 @@ function collectSelected(){
   const B=curBoard(); const out=[];
   const push=(arr,sel)=>{ arr.forEach(o=>{ if(selected.has(o.id)){ const el=document.querySelector(sel+`="${o.id}"]`); if(el) out.push({obj:o, el, ox:o.x||0, oy:o.y||0}); } }); };
   push(B.lists, ".qb-list[data-list"); push(B.notes, ".qb-note[data-note"); push(B.titles, ".qb-title[data-title"); push(B.shapes, ".qb-shape[data-shape");
+  push(B.buttons||[], ".qb-btn[data-btn"); push(B.tables||[], ".qb-table[data-table");
   return out;
 }
 function deleteSelected(){
@@ -2132,6 +2326,8 @@ function deleteSelected(){
   B.notes=B.notes.filter(n=>!ids.has(n.id));
   B.titles=B.titles.filter(t=>!ids.has(t.id));
   B.shapes=(B.shapes||[]).filter(s=>!ids.has(s.id));
+  B.buttons=(B.buttons||[]).filter(b=>!ids.has(b.id));
+  B.tables=(B.tables||[]).filter(t=>!ids.has(t.id));
   B.links=(B.links||[]).filter(l=>!ids.has(l.from) && !ids.has(l.to));
   const n=selected.size; selected.clear();
   save(); renderQuestBoard(); renderQuests(); toast(n+" item"+(n>1?"s":"")+" removed");
@@ -2185,7 +2381,7 @@ function startMove(e, el, obj){
   if(selected.has(obj.id) && selected.size>1){
     group=collectSelected();
   } else {
-    if(selected.size){ document.querySelectorAll(".qb-list.selected,.qb-note.selected,.qb-title.selected,.qb-shape.selected").forEach(x=>x.classList.remove("selected")); selected.clear(); }
+    if(selected.size){ document.querySelectorAll(".qb-list.selected,.qb-note.selected,.qb-title.selected,.qb-shape.selected,.qb-btn.selected,.qb-table.selected").forEach(x=>x.classList.remove("selected")); selected.clear(); }
     group=[{obj, el, ox:obj.x||0, oy:obj.y||0}];
   }
   moveDrag={ sx:e.clientX, sy:e.clientY, group };
@@ -2225,6 +2421,7 @@ function startResize(e, h){
   if(h.dataset.list){ type="list"; obj=B.lists.find(l=>l.id===h.dataset.list); el=h.closest(".qb-list"); }
   else if(h.dataset.note){ type="note"; obj=B.notes.find(n=>n.id===h.dataset.note); el=h.closest(".qb-note"); }
   else if(h.dataset.shape){ type="shape"; obj=B.shapes.find(s=>s.id===h.dataset.shape); el=h.closest(".qb-shape"); }
+  else if(h.dataset.btn){ type="button"; obj=(B.buttons||[]).find(b=>b.id===h.dataset.btn); el=h.closest(".qb-btn"); }
   else { type="title"; obj=B.titles.find(t=>t.id===h.dataset.title); el=h.closest(".qb-title"); }
   if(!obj) return;
   resizing={ obj, el, type, sx:e.clientX, sy:e.clientY, ow:el.offsetWidth, oh:el.offsetHeight, nw:el.offsetWidth, nh:el.offsetHeight };
@@ -2233,7 +2430,7 @@ function startResize(e, h){
 }
 function onResizeMove(e){
   if(!resizing) return;
-  const minW=resizing.type==="note"?160:220, minH=resizing.type==="note"?100:140;
+  const minW=resizing.type==="note"?160:(resizing.type==="button"?120:220), minH=resizing.type==="note"?100:(resizing.type==="button"?44:140);
   let nw=Math.max(minW, resizing.ow+(e.clientX-resizing.sx)/boardZoom);
   let nh=Math.max(minH, resizing.oh+(e.clientY-resizing.sy)/boardZoom);
   resizing.nw=nw; resizing.nh=nh;
@@ -2278,6 +2475,27 @@ function addShape(kind, x, y){
   if(x!=null){ nx=snap(x); ny=snap(y); }
   else { nx=snap(40); ny=snap(40); }
   B.shapes.push({ id:uid(), kind:kind||"rect", x:nx, y:ny, w:360, h:260, color:"#8C73E8", opacity:0.35 });
+  save(); renderQuestBoard();
+}
+function addButton(x, y){
+  const B=curBoard(), q=curQuest(); if(!B) return;
+  B.buttons=B.buttons||[];
+  let nx, ny;
+  if(x!=null){ nx=snap(x); ny=snap(y); }
+  else { nx=snap(40); ny=snap(40); }
+  const id=uid();
+  B.buttons.push({ id, label:"Go to…", x:nx, y:ny, w:220, h:64, color:(q&&q.color)||"#234BFF", target:null });
+  save(); renderQuestBoard();
+  setTimeout(()=>{ const el=document.querySelector(`.qb-btn-more[data-btn="${id}"]`); if(el){ const r=el.getBoundingClientRect(); openButtonMenu(id, r.right-180, r.bottom+4); } },50);
+}
+function addTable(x, y){
+  const B=curBoard(); if(!B) return;
+  B.tables=B.tables||[];
+  let nx, ny;
+  if(x!=null){ nx=snap(x); ny=snap(y); }
+  else { nx=snap(40); ny=snap(40); }
+  B.tables.push({ id:uid(), x:nx, y:ny, color:(curQuest()&&curQuest().color)||"#234BFF",
+    title:"Table title", cols:[160,160], rows:[40,40], cells:[["Header A","Header B"],["",""]] });
   save(); renderQuestBoard();
 }
 const TITLE_PALETTE=["#234BFF","#8C73E8","#E255A1","#E5484D","#F2851E","#F2C200","#2FA84F","#14B8C4","#FFFFFF","#141210"];
@@ -2386,7 +2604,190 @@ addMenu.addEventListener("click", e=>{
   else if(kind==="note") addNote(x, y);
   else if(kind==="title") addTitle(x, y);
   else if(kind==="shape") addShape("rect", x, y);
+  else if(kind==="button") addButton(x, y);
+  else if(kind==="table") addTable(x, y);
 });
+
+/* ---- BUTTON menu + navigation ---- */
+const buttonMenu=document.getElementById("buttonMenu");
+const buttonColors=document.getElementById("buttonColors");
+const btnLabel=document.getElementById("btnLabel");
+const btnLinkCur=document.getElementById("btnLinkCur");
+let buttonMenuId=null;
+const BTN_PALETTE=["#234BFF","#8C73E8","#E255A1","#E5484D","#F2851E","#F2C200","#2FA84F","#14B8C4","#FFFFFF","#141210"];
+function openButtonMenu(id,x,y){
+  buttonMenuId=id;
+  const B=curBoard(); const b=B&&(B.buttons||[]).find(z=>z.id===id); if(!b) return;
+  btnLabel.value=b.label||"";
+  btnLinkCur.textContent="↪ "+targetLabel(b.target);
+  buttonColors.innerHTML=BTN_PALETTE.map(c=>`<button class="csw" data-color="${c}" aria-checked="${b.color===c}" style="background:${c}"></button>`).join("")
+    + `<label class="csw csw-custom" title="Custom color"><input type="color" value="${b.color||'#234BFF'}"></label>`;
+  buttonMenu.classList.add("show");
+  const w=buttonMenu.offsetWidth||200,h=buttonMenu.offsetHeight||220;
+  buttonMenu.style.left=Math.max(8,Math.min(x,window.innerWidth-w-8))+"px";
+  buttonMenu.style.top=Math.max(8,Math.min(y,window.innerHeight-h-8))+"px";
+}
+function closeButtonMenu(){ buttonMenu.classList.remove("show"); }
+btnLabel.addEventListener("input", ()=>{ const B=curBoard(); const b=B&&(B.buttons||[]).find(z=>z.id===buttonMenuId); if(b){ b.label=btnLabel.value; const lbl=document.querySelector(`.qb-btn[data-btn="${b.id}"] .qb-btn-label`); if(lbl) lbl.textContent=b.label||"Go to…"; save(); } });
+buttonColors.addEventListener("click", e=>{ const sw=e.target.closest(".csw:not(.csw-custom)"); if(!sw) return; const B=curBoard(); const b=B&&(B.buttons||[]).find(z=>z.id===buttonMenuId); if(b){ b.color=sw.dataset.color; save(); renderQuestBoard(); } });
+buttonColors.addEventListener("input", e=>{ const inp=e.target.closest("input[type=color]"); if(!inp) return; const B=curBoard(); const b=B&&(B.buttons||[]).find(z=>z.id===buttonMenuId); if(b){ b.color=inp.value; save(); renderQuestBoard(); } });
+buttonMenu.addEventListener("click", e=>{
+  const it=e.target.closest(".ctx-item"); if(!it) return;
+  const act=it.dataset.act, id=buttonMenuId;
+  const B=curBoard(); if(!B) return;
+  if(act==="link"){ openLinkPicker(id); return; }
+  closeButtonMenu();
+  if(act==="duplicate"){ const b=(B.buttons||[]).find(x=>x.id===id); if(!b) return; B.buttons.push(Object.assign({}, JSON.parse(JSON.stringify(b)), {id:uid(), x:snap((b.x||0)+GRID), y:snap((b.y||0)+GRID)})); save(); renderQuestBoard(); toast("Button duplicated"); }
+  else if(act==="remove"){ B.buttons=(B.buttons||[]).filter(x=>x.id!==id); save(); renderQuestBoard(); toast("Button removed"); }
+});
+function followButton(b){
+  const tg=b.target;
+  if(!tg||!tg.questId){ toast("No link yet — open ⋯ → Link to…"); return; }
+  const q=state.quests.find(x=>x.id===tg.questId);
+  if(!q){ toast("Link target no longer exists"); return; }
+  if(tg.boardId && q.boards.some(bd=>bd.id===tg.boardId)) q.activeBoard=tg.boardId;
+  openQuestBoard(q.id);
+  if(tg.itemId) setTimeout(()=>flashItem(tg.itemId), 160);
+}
+function flashItem(id){
+  const el=document.querySelector(`.qb-list[data-list="${id}"], .qb-note[data-note="${id}"], .qb-title[data-title="${id}"]`);
+  if(el){ try{ el.scrollIntoView({behavior:"smooth", block:"center", inline:"center"}); }catch(_){}
+    el.classList.add("qb-flash"); setTimeout(()=>el.classList.remove("qb-flash"), 1400); }
+}
+
+/* ---- LINK PICKER (search quests/lists/notes/titles) ---- */
+const linkPicker=document.getElementById("linkPicker");
+const linkSearch=document.getElementById("linkSearch");
+const linkResults=document.getElementById("linkResults");
+let linkForBtn=null;
+function gatherLinkTargets(){
+  const out=[];
+  state.quests.forEach(q=>{
+    out.push({kind:"quest", questId:q.id, boardId:null, itemId:null, name:q.name, sub:"quest"});
+    (q.boards||[]).forEach(b=>{
+      (b.lists||[]).forEach(l=> out.push({kind:"list", questId:q.id, boardId:b.id, itemId:l.id, name:l.name||"List", sub:q.name+" › "+(b.name||"board")}));
+      (b.titles||[]).forEach(t=> out.push({kind:"title", questId:q.id, boardId:b.id, itemId:t.id, name:t.text||"Title", sub:q.name+" › "+(b.name||"board")}));
+      (b.notes||[]).forEach(n=>{ const txt=(n.html||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim(); out.push({kind:"note", questId:q.id, boardId:b.id, itemId:n.id, name:txt.slice(0,40)||"(empty note)", sub:q.name+" › "+(b.name||"board")}); });
+    });
+  });
+  return out;
+}
+function renderLinkResults(query){
+  const all=gatherLinkTargets();
+  const ql=(query||"").toLowerCase().trim();
+  const rows=ql ? all.filter(t=> (t.name+" "+t.sub+" "+t.kind).toLowerCase().includes(ql)) : all;
+  linkResults.innerHTML = rows.slice(0,80).map((t,i)=>`<div class="link-row" data-i="${all.indexOf(t)}">
+      <span class="link-kind">${t.kind}</span><span class="link-name">${escapeHtml(t.name)}</span><span class="link-sub">${escapeHtml(t.sub)}</span>
+    </div>`).join("") || `<div class="link-row" style="cursor:default;opacity:.6">No matches</div>`;
+  linkResults._all=all;
+}
+function openLinkPicker(btnId){
+  linkForBtn=btnId; closeButtonMenu();
+  renderLinkResults(""); linkPicker.classList.add("show");
+  linkSearch.value=""; setTimeout(()=>linkSearch.focus(),30);
+}
+function closeLinkPicker(){ linkPicker.classList.remove("show"); linkForBtn=null; }
+linkSearch.addEventListener("input", ()=> renderLinkResults(linkSearch.value));
+linkResults.addEventListener("click", e=>{
+  const row=e.target.closest(".link-row"); if(!row||row.dataset.i==null) return;
+  const t=linkResults._all[+row.dataset.i]; if(!t) return;
+  const B=curBoard(); const b=B&&(B.buttons||[]).find(z=>z.id===linkForBtn);
+  if(b){ b.target={kind:t.kind, questId:t.questId, boardId:t.boardId, itemId:t.itemId};
+    if(!b.label || b.label==="Go to…") b.label=t.name;
+    save(); renderQuestBoard(); toast("Linked → "+t.name); }
+  closeLinkPicker();
+});
+document.getElementById("linkPickerClose").addEventListener("click", closeLinkPicker);
+linkPicker.addEventListener("mousedown", e=>{ if(e.target===linkPicker) closeLinkPicker(); });
+
+/* ---- TABLE menu + cell menu + row/col ops + grid resize ---- */
+const tableMenu=document.getElementById("tableMenu");
+const tableColors=document.getElementById("tableColors");
+let tableMenuId=null;
+const TBL_PALETTE=["#234BFF","#8C73E8","#E255A1","#E5484D","#F2851E","#F2C200","#2FA84F","#14B8C4","#141210","#5B6470"];
+function openTableMenu(id,x,y){
+  tableMenuId=id;
+  const B=curBoard(); const t=B&&(B.tables||[]).find(z=>z.id===id); if(!t) return;
+  tableColors.innerHTML=TBL_PALETTE.map(c=>`<button class="csw" data-color="${c}" aria-checked="${t.color===c}" style="background:${c}"></button>`).join("")
+    + `<label class="csw csw-custom" title="Custom color"><input type="color" value="${t.color||'#234BFF'}"></label>`;
+  tableMenu.classList.add("show");
+  const w=tableMenu.offsetWidth||190,h=tableMenu.offsetHeight||160;
+  tableMenu.style.left=Math.max(8,Math.min(x,window.innerWidth-w-8))+"px";
+  tableMenu.style.top=Math.max(8,Math.min(y,window.innerHeight-h-8))+"px";
+}
+function closeTableMenu(){ tableMenu.classList.remove("show"); }
+tableColors.addEventListener("click", e=>{ const sw=e.target.closest(".csw:not(.csw-custom)"); if(!sw) return; const B=curBoard(); const t=B&&(B.tables||[]).find(z=>z.id===tableMenuId); if(t){ t.color=sw.dataset.color; save(); renderQuestBoard(); } closeTableMenu(); });
+tableColors.addEventListener("input", e=>{ const inp=e.target.closest("input[type=color]"); if(!inp) return; const B=curBoard(); const t=B&&(B.tables||[]).find(z=>z.id===tableMenuId); if(t){ t.color=inp.value; save(); renderQuestBoard(); } });
+tableMenu.addEventListener("click", e=>{
+  const it=e.target.closest(".ctx-item"); if(!it) return; const act=it.dataset.act, id=tableMenuId; closeTableMenu();
+  const B=curBoard(); if(!B) return;
+  if(act==="duplicate"){ const t=(B.tables||[]).find(x=>x.id===id); if(!t) return; B.tables.push(Object.assign({}, JSON.parse(JSON.stringify(t)), {id:uid(), x:snap((t.x||0)+GRID), y:snap((t.y||0)+GRID)})); save(); renderQuestBoard(); toast("Table duplicated"); }
+  else if(act==="remove"){ B.tables=(B.tables||[]).filter(x=>x.id!==id); save(); renderQuestBoard(); toast("Table removed"); }
+});
+
+const cellMenu=document.getElementById("cellMenu");
+let cellCtx=null; // {id,r,c}
+function openCellMenu(id,r,c,x,y){
+  cellCtx={id,r,c};
+  cellMenu.classList.add("show");
+  const w=cellMenu.offsetWidth||190,h=cellMenu.offsetHeight||220;
+  cellMenu.style.left=Math.max(8,Math.min(x,window.innerWidth-w-8))+"px";
+  cellMenu.style.top=Math.max(8,Math.min(y,window.innerHeight-h-8))+"px";
+}
+function closeCellMenu(){ cellMenu.classList.remove("show"); cellCtx=null; }
+function curTable(id){ const B=curBoard(); return B&&(B.tables||[]).find(t=>t.id===id); }
+function tableAddRow(id, at){
+  const t=curTable(id); if(!t) return; const cols=t.cols.length;
+  const row=new Array(cols).fill(""); const idx=(at==null?t.rows.length:at);
+  t.rows.splice(idx,0,40); t.cells.splice(idx,0,row); save(); renderQuestBoard();
+}
+function tableAddCol(id, at){
+  const t=curTable(id); if(!t) return; const idx=(at==null?t.cols.length:at);
+  t.cols.splice(idx,0,140); t.cells.forEach((row,ri)=> row.splice(idx,0, ri===0?"Header":"")); save(); renderQuestBoard();
+}
+cellMenu.addEventListener("click", e=>{
+  const it=e.target.closest(".ctx-item"); if(!it||!cellCtx) return;
+  const {id,r,c}=cellCtx, act=it.dataset.act; closeCellMenu();
+  const t=curTable(id); if(!t) return;
+  if(act==="dup-row"){ t.rows.splice(r+1,0,t.rows[r]); t.cells.splice(r+1,0, t.cells[r].slice()); }
+  else if(act==="add-row"){ t.rows.splice(r+1,0,40); t.cells.splice(r+1,0, new Array(t.cols.length).fill("")); }
+  else if(act==="del-row"){ if(t.rows.length<=1){ toast("Table needs a row"); return; } t.rows.splice(r,1); t.cells.splice(r,1); }
+  else if(act==="dup-col"){ t.cols.splice(c+1,0,t.cols[c]); t.cells.forEach(row=> row.splice(c+1,0,row[c])); }
+  else if(act==="add-col"){ t.cols.splice(c+1,0,140); t.cells.forEach((row,ri)=> row.splice(c+1,0, ri===0?"Header":"")); }
+  else if(act==="del-col"){ if(t.cols.length<=1){ toast("Table needs a column"); return; } t.cols.splice(c,1); t.cells.forEach(row=> row.splice(c,1)); }
+  save(); renderQuestBoard();
+}, true);
+
+let gridResize=null;
+function startGridResize(e, h, dir){
+  const t=curTable(h.dataset.table); if(!t) return;
+  const idx=dir==="col"? +h.dataset.c : +h.dataset.r;
+  gridResize={ t, dir, idx, start: dir==="col"? e.clientX : e.clientY, orig: dir==="col"? t.cols[idx] : t.rows[idx], el:h.closest(".qb-table") };
+  document.addEventListener("mousemove", onGridResize);
+  document.addEventListener("mouseup", endGridResize);
+}
+function onGridResize(e){
+  if(!gridResize) return;
+  const {t,dir,idx}=gridResize;
+  if(dir==="col"){ const nw=Math.max(60, gridResize.orig+(e.clientX-gridResize.start)/boardZoom); t.cols[idx]=nw; }
+  else { const nh=Math.max(30, gridResize.orig+(e.clientY-gridResize.start)/boardZoom); t.rows[idx]=nh; }
+  // live update without full re-render
+  const wrap=gridResize.el.querySelector(".qb-table-wrap");
+  const grid=gridResize.el.querySelector(".qb-table-grid");
+  const tw=t.cols.reduce((a,c)=>a+c,0), th=t.rows.reduce((a,r)=>a+r,0);
+  wrap.style.width=tw+"px"; wrap.style.height=th+"px";
+  grid.style.gridTemplateColumns=t.cols.map(c=>c+"px").join(" ");
+  grid.style.gridTemplateRows=t.rows.map(r=>r+"px").join(" ");
+  let acc=0; gridResize.el.querySelectorAll(".qb-col-resize").forEach((hh,i)=>{ acc+=t.cols[i]; hh.style.left=acc+"px"; });
+  acc=0; gridResize.el.querySelectorAll(".qb-row-resize").forEach((hh,i)=>{ acc+=t.rows[i]; hh.style.top=acc+"px"; });
+}
+function endGridResize(){
+  if(!gridResize) return;
+  document.removeEventListener("mousemove", onGridResize);
+  document.removeEventListener("mouseup", endGridResize);
+  gridResize=null; save();
+}
+
 
 const noteMenu=document.getElementById("noteMenu");
 const noteColors=document.getElementById("noteColors");
@@ -2601,7 +3002,7 @@ function wireTabs(q){
 }
 function addBoard(){
   const q=curQuest(); if(!q) return;
-  const b={ id:uid(), name:"Board "+(q.boards.length+1), color:q.color||"#234BFF", bg:"", lists:[], notes:[], links:[], titles:[], shapes:[] };
+  const b={ id:uid(), name:"Board "+(q.boards.length+1), color:q.color||"#234BFF", bg:"", lists:[], notes:[], links:[], titles:[], shapes:[], buttons:[], tables:[] };
   q.boards.push(b); q.activeBoard=b.id; linkFrom=null; selected.clear(); save(); renderQuestBoard();
 }
 function duplicateBoard(id){
@@ -2612,9 +3013,15 @@ function duplicateBoard(id){
   const notes=(src.notes||[]).map(n=>{ const nid=uid(); idMap[n.id]=nid; return Object.assign({},n,{id:nid}); });
   const titles=(src.titles||[]).map(t=>{ const nid=uid(); idMap[t.id]=nid; return Object.assign({},t,{id:nid}); });
   const shapes=(src.shapes||[]).map(s=>Object.assign({}, s, {id:uid()}));
+  const tables=(src.tables||[]).map(t=>{ const c=JSON.parse(JSON.stringify(t)); c.id=uid(); return c; });
+  const buttons=(src.buttons||[]).map(b=>{ const c=JSON.parse(JSON.stringify(b)); c.id=uid();
+    if(c.target && c.target.boardId===src.id){ c.target.boardId=null; /* will set to nb.id below */ c.__remap=true; }
+    if(c.target && c.target.itemId && idMap[c.target.itemId]) c.target.itemId=idMap[c.target.itemId];
+    return c; });
   lists.forEach(l=>{ if(l.lockedUntil && idMap[l.lockedUntil]) l.lockedUntil=idMap[l.lockedUntil]; });
   const links=(src.links||[]).map(lk=>({id:uid(), from:idMap[lk.from]||lk.from, to:idMap[lk.to]||lk.to}));
-  const nb={ id:uid(), name:src.name+" (copy)", color:src.color, bg:src.bg||"", lists, notes, titles, shapes, links };
+  const nb={ id:uid(), name:src.name+" (copy)", color:src.color, bg:src.bg||"", lists, notes, titles, shapes, buttons, tables, links };
+  buttons.forEach(b=>{ if(b.__remap){ b.target.boardId=nb.id; delete b.__remap; } });
   src.lists.forEach(l=>{ state.missions.filter(m=>m.questId===q.id&&m.listId===l.id).forEach(m=>{ const c=JSON.parse(JSON.stringify(m)); c.id=uid(); c.listId=idMap[l.id]; c.createdAt=Date.now(); c.modifiedAt=Date.now(); state.missions.push(c); }); });
   q.boards.splice(q.boards.indexOf(src)+1,0,nb); q.activeBoard=nb.id; save(); renderQuestBoard(); renderQuests(); toast("Tab duplicated");
 }
@@ -2784,10 +3191,14 @@ document.addEventListener("click", e=>{
   if(!bgMenu.contains(e.target)) closeBgMenu();
   if(!shapeMenu.contains(e.target)) closeShapeMenu();
   if(!addMenu.contains(e.target)) closeAddMenu();
+  if(!buttonMenu.contains(e.target)) closeButtonMenu();
+  if(!tableMenu.contains(e.target)) closeTableMenu();
+  if(!cellMenu.contains(e.target)) closeCellMenu();
 });
 document.addEventListener("keydown", e=>{
   if(e.key==="Escape"){
-    closeListMenu(); closeQbMenu(); closeNoteMenu(); closeTabMenu(); closeTitleMenu(); closeBgMenu(); closeShapeMenu(); closeAddMenu();
+    closeListMenu(); closeQbMenu(); closeNoteMenu(); closeTabMenu(); closeTitleMenu(); closeBgMenu(); closeShapeMenu(); closeAddMenu(); closeButtonMenu(); closeTableMenu(); closeCellMenu();
+    if(linkPicker.classList.contains("show")){ closeLinkPicker(); return; }
     if(linkFrom){ linkFrom=null; if(boardQuestId) renderQuestBoard(); }
     else if(selected.size){ selected.clear(); if(boardQuestId) renderQuestBoard(); }
   } else if((e.key==="Delete"||e.key==="Backspace") && boardQuestId && selected.size){
